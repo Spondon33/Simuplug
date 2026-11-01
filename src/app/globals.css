@@ -1,0 +1,31 @@
+@import "tailwindcss";
+@import "@openuidev/react-ui/styles/index.css";
+
+:root {
+  --background: #020617;
+  --foreground: #f8fafc;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+/* OpenUI container styles */
+.openui-app-container {
+  width: 100%;
+  /* no opacity/transform animation here: it left sandboxed iframes unpainted until a repaint */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
