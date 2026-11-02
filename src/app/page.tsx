@@ -1,13 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { Search, Sparkles, Code2, FileText } from "lucide-react";
-import { ResultView } from "@/components/ResultView";
+// The OpenUI renderer is ~700 kB: load it after the page is interactive, not before.
+const loadResultView = () => import("@/components/ResultView").then((m) => m.ResultView);
+const ResultView = dynamic(loadResultView, { ssr: false });
 
 export default function Home() {
   const [input, setInput] = useState("");
   const [query, setQuery] = useState("");
+
+  // After first paint: preload the renderer and warm the book index (wakes the database) for the reader.
+  useEffect(() => {
+    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => void }).requestIdleCallback;
+    const warm = () => {
+      loadResultView();
+      fetch("/api/ocr/books").catch(() => {});
+    };
+    if (idle) idle(warm);
+    else setTimeout(warm, 1500);
+  }, []);
 
   const run = (text: string) => {
     const q = text.trim();

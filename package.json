@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "embed-server": "rag/.venv/bin/python -m uvicorn embed_server:app --app-dir rag --host 127.0.0.1 --port 8765",

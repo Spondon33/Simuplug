@@ -37,7 +37,8 @@ npm run rag:embed      # embed + store in Neon (resumable)
 python3 rag/prep_ocr.py                      # OCR-Word-Positions -> data/ocr (one-time)
 cd rag && .venv/bin/python load_ocr.py && cd ..   # load word positions into Neon (one-time)
 npm run embed-server   # terminal 1: query embedding service on :8765
-npm run dev            # terminal 2: the website
+npm run dev            # terminal 2: the website (Turbopack dev server; the first visit to each page compiles it)
+# For the fastest experience, run a production build instead:  npm run build && npm start
 ```
 
 Environment (`.env` / `.env.local`): `BASETEN_API_KEY`, `BASETEN_MODEL`, `DATABASE_URL`, `DATABASE_URL_UNPOOLED`.

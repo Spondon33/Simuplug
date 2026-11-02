@@ -2,10 +2,11 @@
 
 import React, { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { ArrowLeft, FileUp, Loader2, Sparkles, X, AlertTriangle } from "lucide-react";
 import { PdfReader } from "@/components/PdfReader";
-import { ResultView } from "@/components/ResultView";
+const ResultView = dynamic(() => import("@/components/ResultView").then((m) => m.ResultView), { ssr: false });
 
 interface BookMeta {
   id: string;
@@ -68,8 +69,24 @@ export default function Reader() {
     }
   }, [pageWidth]);
 
+  // Start loading the book index and pdf.js immediately, but never block the file picker on them:
+  // onFile awaits the same promise when a file is chosen.
+  const booksPromise = useRef<Promise<BookMeta[]> | null>(null);
+  const loadBooks = () =>
+    (booksPromise.current ??= fetch("/api/ocr/books")
+      .then((r) => r.json())
+      .then((b: BookMeta[]) => {
+        setBooks(b);
+        return b;
+      })
+      .catch((e) => {
+        booksPromise.current = null;
+        throw e;
+      }));
   useEffect(() => {
-    fetch("/api/ocr/books").then((r) => r.json()).then(setBooks).catch(() => setError("Could not load the book index."));
+    loadBooks().catch(() => {});
+    import("pdfjs-dist").catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // page width follows the scroll container (it shrinks when the simulation panel opens).
@@ -105,7 +122,8 @@ export default function Reader() {
       const pdfjs = await import("pdfjs-dist");
       pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
       const doc = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
-      const found = await matchBooks(doc, file.name, books);
+      const list = await loadBooks();
+      const found = await matchBooks(doc, file.name, list);
       if (!found.length) {
         setError("No books matched. This PDF is not one of the supported textbooks, so it can't be opened here.");
         doc.destroy();
@@ -177,7 +195,7 @@ export default function Reader() {
               type="file"
               accept="application/pdf"
               className="hidden"
-              disabled={loading || !books.length}
+              disabled={loading}
               onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])}
             />
           </label>
