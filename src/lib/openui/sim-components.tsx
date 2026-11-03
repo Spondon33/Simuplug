@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { defineComponent, useIsStreaming } from "@openuidev/react-lang";
 import { Loader2 } from "lucide-react";
-import { buildSimHtml } from "./sim-harness";
+import { buildSimHtml, detectNeeds } from "./sim-harness";
+import { loadAssets } from "./sim-assets";
 import { SIM_DESCRIPTION, simCanvasProps } from "./sim-schema";
 
 export const SimCanvasComponent = defineComponent({
@@ -13,7 +14,18 @@ export const SimCanvasComponent = defineComponent({
   component: ({ props }) => {
     // While the page is still streaming, `script` is only partly written: don't run it, wait for the full text.
     const streaming = useIsStreaming();
-    const html = useMemo(() => (streaming ? "" : buildSimHtml(props.script || "")), [props.script, streaming]);
+    const script = props.script || "";
+    const [html, setHtml] = useState("");
+    useEffect(() => {
+      if (streaming) return setHtml("");
+      let live = true;
+      loadAssets(detectNeeds(script))
+        .then((a) => live && setHtml(buildSimHtml(script, a)))
+        .catch(() => live && setHtml(buildSimHtml(script, { fontsCss: "" })));
+      return () => {
+        live = false;
+      };
+    }, [script, streaming]);
     // The page inside the iframe posts "simReady" once its script starts. If it never does (the iframe loaded
     // blank), rebuild the iframe, up to 3 times.
     const frameRef = useRef<HTMLIFrameElement>(null);
@@ -31,14 +43,20 @@ export const SimCanvasComponent = defineComponent({
     const [nonce, setNonce] = useState(0);
     const [failed, setFailed] = useState(false);
     const [drawn, setDrawn] = useState(false);
+    const [contentH, setContentH] = useState<number | null>(null);
     useEffect(() => {
       if (streaming || !html || !near) return;
       let ready = false;
       setDrawn(false);
       const onMsg = (e: MessageEvent) => {
         if (e.source !== frameRef.current?.contentWindow) return;
-        if (e.data?.simReady) ready = true;
+        if (e.data?.simReady) {
+          ready = true;
+          // the first animation frame can be delayed in background tabs; don't keep the loader up for it
+          setTimeout(() => setDrawn(true), 1400);
+        }
         if (e.data?.simFrame) setDrawn(true);
+        if (typeof e.data?.simH === "number") setContentH(Math.min(1600, Math.ceil(e.data.simH) + 6));
       };
       window.addEventListener("message", onMsg);
       const t = setTimeout(() => {
@@ -63,17 +81,17 @@ export const SimCanvasComponent = defineComponent({
       });
     };
     return (
-      <div ref={wrapRef} className="relative w-full bg-slate-900 border border-slate-700/60 rounded-2xl overflow-hidden shadow-lg">
-        <div className="px-4 py-2.5 bg-slate-800/70 border-b border-slate-700/50 text-xs">
-          <div className="font-semibold text-white">{props.title}</div>
-          <div className="text-slate-400">{props.caption}</div>
+      <div ref={wrapRef} className="relative w-full glass rounded-3xl overflow-hidden my-2">
+        <div className="px-5 py-3.5 text-xs" style={{ background: "linear-gradient(120deg, rgba(212,236,255,0.75), rgba(255,255,255,0.5))", borderBottom: "1px solid rgba(255,255,255,0.9)" }}>
+          <div className="text-[15px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>{props.title}</div>
+          <div className="mt-0.5" style={{ color: "var(--mute)" }}>{props.caption}</div>
         </div>
-        {streaming ? (
-          <div style={{ height: props.height || 660 }} className="flex items-center justify-center gap-2 text-xs text-slate-400 bg-slate-950">
+        {streaming || (near && !html) ? (
+          <div style={{ height: props.height || 720, color: "var(--mute)" }} className="flex items-center justify-center gap-2 text-xs">
             <Loader2 className="w-4 h-4 animate-spin" /> Building the simulation…
           </div>
         ) : !near ? (
-          <div style={{ height: props.height || 660 }} className="bg-slate-950" />
+          <div style={{ height: contentH || props.height || 720 }} />
         ) : (
           <iframe
             key={nonce}
@@ -82,16 +100,16 @@ export const SimCanvasComponent = defineComponent({
             title={props.title}
             srcDoc={html}
             sandbox="allow-scripts"
-            style={{ height: props.height || 660, border: 0 }}
-            className="w-full bg-slate-950"
+            style={{ height: contentH || props.height || 720, border: 0, background: "transparent" }}
+            className="w-full"
           />
         )}
-        {!streaming && html && !drawn && !failed && (
-          <div className="absolute inset-x-0 bottom-0 top-[52px] flex items-center justify-center gap-2 text-xs text-slate-400 bg-slate-950 pointer-events-none">
+        {!streaming && html && near && !drawn && !failed && (
+          <div className="absolute inset-x-0 bottom-0 top-[64px] flex items-center justify-center gap-2 text-xs pointer-events-none" style={{ color: "var(--mute)", background: "rgba(240,249,255,0.92)" }}>
             <Loader2 className="w-4 h-4 animate-spin" /> Starting the simulation…
           </div>
         )}
-        {failed && <div className="px-4 py-2 text-xs text-rose-300 bg-rose-950/40">The simulation could not start. Search again to retry.</div>}
+        {failed && <div className="px-4 py-2 text-xs" style={{ color: "#be123c", background: "rgba(255,241,242,0.9)" }}>The simulation could not start. Search again to retry.</div>}
       </div>
     );
   },

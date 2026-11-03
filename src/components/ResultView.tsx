@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { BookOpen, Lightbulb, Loader2 } from "lucide-react";
 import { SimulationCard, Match } from "@/components/SimulationCard";
+import { m, AnimatePresence, ease } from "@/components/Motion";
 
 /**
  * Search -> summary + ONE simulation for the best match, plus clickable related topics.
@@ -73,47 +74,84 @@ export const ResultView: React.FC<{ query: string; book?: string | null; onPickR
   if (!query.trim()) return null;
   return (
     <div>
-      {error && <div className="mb-6 p-4 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-rose-200 text-sm">{error}</div>}
+      <AnimatePresence>
+        {error && (
+          <m.div
+            key="err"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className="mb-6 p-4 rounded-2xl text-sm"
+            style={{ background: "rgba(255,241,242,0.85)", border: "1px solid #fecdd3", color: "#be123c" }}
+          >
+            {error}
+          </m.div>
+        )}
+      </AnimatePresence>
 
       {!error && (
-        <section className="mb-6 p-5 rounded-2xl bg-slate-900 border border-slate-800">
-          <div className="flex items-center gap-2 text-xs font-semibold text-indigo-300 mb-2">
+        <m.section
+          key={query}
+          initial={{ opacity: 0, y: 22 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease }}
+          className="glass rounded-3xl p-6 mb-6"
+        >
+          <div className="flex items-center gap-2 text-xs font-semibold mb-3" style={{ color: "var(--blue-deep)" }}>
             <BookOpen className="w-4 h-4 shrink-0" />
             <span className="truncate">Summary for “{query.length > 80 ? query.slice(0, 80) + "…" : query}”</span>
             {(searching || summarizing) && <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />}
           </div>
-          <p className="text-sm leading-relaxed text-slate-200 whitespace-pre-wrap">
-            {summary || (searching || summarizing ? "Searching the books…" : "")}
-          </p>
-          {best && (
-            <p className="text-[11px] text-slate-500 mt-3">
-              Source: {best.book} §{best.section}
+          {summary ? (
+            <p className="text-[15px] leading-relaxed whitespace-pre-wrap" style={{ color: "#16324f" }}>
+              {summary.replace(/\$([^$\n]+)\$/g, "$1")}
             </p>
+          ) : (
+            <div className="space-y-2.5">
+              <div className="shimmer h-4 w-full" />
+              <div className="shimmer h-4 w-11/12" />
+              <div className="shimmer h-4 w-8/12" />
+            </div>
           )}
-        </section>
+          {best && (
+            <m.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[11px] mt-4" style={{ color: "var(--mute)" }}>
+              Source: {best.book} · §{best.section}
+            </m.p>
+          )}
+        </m.section>
       )}
 
       {best && <SimulationCard key={`${query}-${best.chunkId}`} match={best} query={query} />}
 
       {related.length > 0 && (
-        <section className="mt-8">
-          <h2 className="text-xs font-semibold text-slate-400 mb-3 flex items-center gap-2">
+        <m.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2, ease }} className="mt-10">
+          <h2 className="text-xs font-semibold mb-3 flex items-center gap-2" style={{ color: "var(--mute)" }}>
             <Lightbulb className="w-4 h-4" /> Related topics
           </h2>
-          <div className="flex flex-wrap gap-2">
-            {related.map((m) => (
-              <button
-                key={m.chunkId}
-                onClick={() => onPickRelated(m.title.replace(/:$/, ""))}
-                title={`${m.book} · §${m.section}`}
-                className="px-3.5 py-2 rounded-full bg-slate-900 border border-slate-700 hover:border-indigo-500/70 hover:text-indigo-200 text-xs text-slate-300 transition"
+          <div className="flex flex-wrap gap-2.5">
+            {related.map((r, i) => (
+              <m.button
+                key={r.chunkId}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 + i * 0.06, duration: 0.45, ease }}
+                whileHover={{ y: -3, scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={() => onPickRelated(r.title.replace(/:$/, ""))}
+                title={`${r.book} · §${r.section}`}
+                className="glass rounded-full px-4 py-2 text-[13px] font-medium"
+                style={{ color: "#16324f" }}
               >
-                {m.title.replace(/:$/, "")}
-                {!book && <span className="ml-2 text-[10px] text-slate-500">{m.book}</span>}
-              </button>
+                {r.title.replace(/:$/, "")}
+                {!book && (
+                  <span className="ml-2 text-[10px]" style={{ color: "var(--mute)" }}>
+                    {r.book}
+                  </span>
+                )}
+              </m.button>
             ))}
           </div>
-        </section>
+        </m.section>
       )}
     </div>
   );

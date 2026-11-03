@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
             {
               role: "system",
               content:
-                "You are a concise tutor. Answer the student's search with a SHORT summary (3-5 sentences, plain language) grounded in the textbook excerpts. Cite sources inline like [1]. If the excerpts do not cover the topic, say so briefly and give the best general explanation. No headings, no preamble.",
+                "You are a concise tutor. Answer the student's search with a SHORT summary (3-5 sentences, plain language) grounded in the textbook excerpts. Cite sources inline like [1]. If the excerpts do not cover the topic, say so briefly and give the best general explanation. Write math in plain text (for example F = ma, v = u + at); never use LaTeX or dollar signs. No headings, no preamble.",
             },
             { role: "user", content: `Search: ${query}\n\nTextbook excerpts:\n${context}` },
           ],

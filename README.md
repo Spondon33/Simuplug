@@ -1,12 +1,12 @@
 # Simuplug (OpenUI Lang + RAG)
 
-Search any topic from the class 9–10 textbooks in `OCR-Converted-HTML/`. The site returns a short summary and
+Search any topic from the textbooks in `OCR-Converted-HTML/`. The site returns a short summary and
 interactive simulations built from the matching book sections.
 
-## Built with Muse Spark Open
+## Built with Muse Wonder 1.0
 
-All text and simulation generation in Simuplug is done by **Muse Spark Open** (Meta's open-weights model, served by
-Baseten as `meta-models/muse-spark-open-1026`). It is used for:
+All text and simulation generation in Simuplug is done by **Muse Wonder 1.0** (`muse-wonder-1.0`, via the Meta API at
+`https://api.meta.ai/v1`). It is used for:
 
 - the short, cited **summary** of the matched textbook section, and
 - writing each **simulation** as OpenUI Lang (from the section's figure descriptions, or from its text when there is no figure).
@@ -21,11 +21,20 @@ Embeddings are separate and come from EmbeddingGemma 2 (see below).
    with sentence-transformers) and stores it in Neon Postgres (`chunks`, pgvector + HNSW).
 3. **Search (RAG)** – the query is embedded with the same model (`rag/embed_server.py`) and the nearest chunks are
    fetched by cosine distance.
-4. **Summary** – **Muse Spark Open** (Baseten) writes a short, cited summary from the best-matching chunk.
+4. **Summary** – **Muse Wonder 1.0** writes a short, cited summary from the best-matching chunk.
 5. **Simulation** – if a simulation already exists for that chunk in the `simulations` table, its stored OpenUI Lang is
-   rendered directly. Otherwise **Muse Spark Open** writes a new OpenUI Lang page (using the chunk's figure descriptions, or the chunk text
+   rendered directly. Otherwise **Muse Wonder 1.0** writes a new OpenUI Lang page (using the chunk's figure descriptions, or the chunk text
    plus outside knowledge when there is no figure), it is validated, rendered, and stored next to the chunk's vector.
-   The interactive part is a `SimCanvas` component: a short script run in a sandboxed iframe.
+   The interactive part is a `SimCanvas` component: a short script run in a sandboxed iframe. Before a simulation is stored it is
+   validated and dry-run on the server (syntax, runtime errors, NaN, overlapping text) and Muse repairs it if needed.
+
+## Simulation design system
+
+Every simulation shares one light, glassy look (white + ice blue). The script API (`slider`, `choice`, `formula`, `ball`, `box`,
+`label`, `arrow`, `axes`/`plot`, `chart`, `timeline`, ...) is implemented in `src/lib/openui/sim-harness.ts`. Optional libraries are
+self-hosted (`scripts/copy-vendor.mjs` copies them to `public/vendor`) and inlined into each sandboxed page only when used:
+**KaTeX** for formulas, **Matter.js** for collisions/friction, **Leaflet** for real maps. Charts, graphs and animation are plain
+Canvas with `requestAnimationFrame`. The site itself uses Motion for transitions and Inter + Noto Sans Bengali for text.
 
 ## Run it
 
@@ -41,4 +50,4 @@ npm run dev            # terminal 2: the website (Turbopack dev server; the firs
 # For the fastest experience, run a production build instead:  npm run build && npm start
 ```
 
-Environment (`.env` / `.env.local`): `BASETEN_API_KEY`, `BASETEN_MODEL`, `DATABASE_URL`, `DATABASE_URL_UNPOOLED`.
+Environment (`.env` / `.env.local`): `MUSE_API_KEY`, `MUSE_BASE_URL` (default `https://api.meta.ai/v1`), `MUSE_MODEL` (default `muse-wonder-1.0`), `DATABASE_URL`, `DATABASE_URL_UNPOOLED`.

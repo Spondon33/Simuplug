@@ -1,31 +1,211 @@
 @import "tailwindcss";
+@import "@fontsource-variable/inter/index.css";
+@import "@fontsource/noto-sans-bengali/400.css";
+@import "@fontsource/noto-sans-bengali/600.css";
 @import "@openuidev/react-ui/styles/index.css";
 
+/* ---------- Design tokens: white + ice blue, glassmorphism ---------- */
 :root {
-  --background: #020617;
-  --foreground: #f8fafc;
+  --ink: #0f2742;
+  --mute: #5b7089;
+  --ice-50: #f6fbff;
+  --ice-100: #eaf6ff;
+  --ice-200: #d4ecff;
+  --ice-300: #b6dcfb;
+  --sky: #38bdf8;
+  --blue: #3b82f6;
+  --blue-deep: #1d4ed8;
+  --glass: rgba(255, 255, 255, 0.58);
+  --glass-strong: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.9);
+  --shadow-soft: 0 10px 40px rgba(59, 130, 246, 0.14);
+  --shadow-lift: 0 18px 50px rgba(59, 130, 246, 0.22);
+  --ease: cubic-bezier(0.22, 0.8, 0.22, 1);
+  --font: "Inter Variable", "Noto Sans Bengali", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+html {
+  color-scheme: light;
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  font-family: var(--font);
   overflow-x: hidden;
+  background:
+    radial-gradient(1100px 620px at 8% -8%, #ffffff 0%, rgba(255, 255, 255, 0) 62%),
+    radial-gradient(900px 640px at 100% 4%, #cfe8fb 0%, rgba(207, 232, 251, 0) 58%),
+    radial-gradient(800px 600px at 50% 110%, #dff1ff 0%, rgba(223, 241, 255, 0) 60%),
+    linear-gradient(180deg, #f7fbff 0%, #e7f3ff 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
 }
 
-/* OpenUI container styles */
+::selection {
+  background: rgba(56, 189, 248, 0.3);
+}
+
+/* ---------- Glass surfaces ---------- */
+.glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(18px) saturate(1.6);
+  backdrop-filter: blur(18px) saturate(1.6);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+.glass-strong {
+  background: var(--glass-strong);
+  -webkit-backdrop-filter: blur(22px) saturate(1.7);
+  backdrop-filter: blur(22px) saturate(1.7);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--shadow-soft), inset 0 1px 0 #fff;
+}
+.glass-hover {
+  transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease), border-color 0.3s;
+}
+.glass-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift), inset 0 1px 0 #fff;
+}
+
+.btn-ice {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 999px;
+  font-weight: 600;
+  color: #fff;
+  background: linear-gradient(135deg, #60a5fa 0%, #38bdf8 100%);
+  box-shadow: 0 8px 22px rgba(56, 189, 248, 0.42);
+  transition: transform 0.2s var(--ease), box-shadow 0.25s, filter 0.2s;
+}
+.btn-ice:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(56, 189, 248, 0.55);
+  filter: saturate(1.1);
+}
+.btn-ice:active {
+  transform: scale(0.97);
+}
+.btn-ice:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--blue-deep);
+  background: rgba(212, 236, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+}
+
+.gradient-text {
+  padding: 0.04em 0.06em 0.12em;
+  line-height: 1.12;
+  background: linear-gradient(120deg, #0f2742 10%, #2563eb 55%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-text.center {
+  display: block;
+  width: fit-content;
+  margin-inline: auto;
+}
+
+/* ---------- Loading shimmer ---------- */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  background: rgba(212, 236, 255, 0.5);
+  border-radius: 12px;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85), transparent);
+  animation: shimmer 1.6s infinite;
+}
+@keyframes shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* ---------- Floating books (home background) ---------- */
+.books-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.book-par {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  transform: translate3d(calc(var(--mx, 0) * var(--depth) * 1px), calc(var(--my, 0) * var(--depth) * 1px), 0);
+  transition: transform 0.6s var(--ease);
+}
+.book-float {
+  animation: drift var(--dur) ease-in-out infinite;
+  animation-delay: var(--delay);
+  filter: blur(var(--blur)) drop-shadow(0 18px 24px rgba(59, 130, 246, 0.22));
+  opacity: var(--op);
+  will-change: transform;
+}
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--r));
+  }
+  50% {
+    transform: translate3d(var(--dx), var(--dy), 0) rotate(calc(var(--r) + var(--dr)));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .book-float,
+  .shimmer::after {
+    animation: none;
+  }
+}
+
+/* ---------- OpenUI components: glass skin ---------- */
 .openui-app-container {
   width: 100%;
   /* no opacity/transform animation here: it left sandboxed iframes unpainted until a repaint */
 }
+.openui-app-container .openui-card,
+.openui-app-container .openui-steps-container,
+.openui-app-container .openui-callout {
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(16px) saturate(1.5);
+  backdrop-filter: blur(16px) saturate(1.5);
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+  box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+.openui-app-container .openui-inline-header-heading {
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.openui-app-container .openui-text-content {
+  color: #1b3a5c;
+  line-height: 1.65;
+}
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+/* ---------- PDF reader ---------- */
+.pdf-page {
+  border-radius: 6px;
+  box-shadow: 0 8px 30px rgba(59, 130, 246, 0.18), 0 1px 0 rgba(255, 255, 255, 0.9);
 }

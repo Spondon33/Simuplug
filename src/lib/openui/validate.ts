@@ -1,4 +1,5 @@
 import { z } from "zod/v4";
+import { dryRunSim } from "./sim-dryrun";
 import { createLibrary, createParser, defineComponent } from "@openuidev/lang-core";
 import { SIM_DESCRIPTION, simCanvasProps } from "./sim-schema";
 
@@ -37,8 +38,9 @@ async function getParser() {
 }
 
 export interface Validation {
-  ok: boolean;
+  ok: boolean; // no hard errors
   errors: string[];
+  warnings: string[]; // layout problems (overlapping text): worth one repair pass, never blocking
 }
 
 function findSim(node: unknown, out: { script?: string }[]) {
@@ -53,6 +55,7 @@ function findSim(node: unknown, out: { script?: string }[]) {
 
 export async function validateOpenUi(code: string): Promise<Validation> {
   const errors: string[] = [];
+  const warnings: string[] = [];
   if (!/^\s*root\s*=/m.test(code)) errors.push("Missing `root = ...` statement");
   try {
     const parser = await getParser();
@@ -69,7 +72,10 @@ export async function validateOpenUi(code: string): Promise<Validation> {
     if (sims.length !== 1) errors.push(`Expected exactly one SimCanvas, found ${sims.length}`);
     else {
       try {
-        new Function("slider", "toggle", "button", "readout", sims[0].script || "");
+        new Function(sims[0].script || "");
+        const run = await dryRunSim(sims[0].script || "");
+        if (run.error) errors.push(`SimCanvas script fails when run: ${run.error}`);
+        warnings.push(...run.layout);
       } catch (e) {
         errors.push(`SimCanvas script has a JavaScript syntax error: ${(e as Error).message}`);
       }
@@ -77,5 +83,5 @@ export async function validateOpenUi(code: string): Promise<Validation> {
   } catch (e) {
     errors.push(`Parse failure: ${(e as Error).message}`);
   }
-  return { ok: errors.length === 0, errors };
+  return { ok: errors.length === 0, errors, warnings };
 }

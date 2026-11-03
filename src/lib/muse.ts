@@ -1,6 +1,7 @@
-// Muse Spark Open on Baseten (OpenAI-compatible). The model always reasons: we only forward `content`
-// deltas, never `reasoning_content`.
-const URL = "https://inference.baseten.co/v1/chat/completions";
+// Muse Wonder 1.0 via the Meta API (OpenAI-compatible chat completions). The model reasons internally:
+// we only forward `content` deltas (never reasoning) and drop any <think> blocks that leak into content.
+const BASE_URL = () => (process.env.MUSE_BASE_URL || "https://api.meta.ai/v1").replace(/\/$/, "");
+export const MUSE_MODEL = () => process.env.MUSE_MODEL || "muse-wonder-1.0";
 
 export interface Msg {
   role: "system" | "user" | "assistant";
@@ -8,13 +9,13 @@ export interface Msg {
 }
 
 function request(messages: Msg[], stream: boolean, maxTokens: number) {
-  const key = process.env.BASETEN_API_KEY;
-  if (!key) throw new Error("BASETEN_API_KEY is not set");
-  return fetch(URL, {
+  const key = process.env.MUSE_API_KEY;
+  if (!key) throw new Error("MUSE_API_KEY is not set");
+  return fetch(`${BASE_URL()}/chat/completions`, {
     method: "POST",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({
-      model: process.env.BASETEN_MODEL || "meta-models/muse-spark-open-1026",
+      model: MUSE_MODEL(),
       messages,
       stream,
       max_tokens: maxTokens,

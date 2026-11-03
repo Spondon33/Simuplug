@@ -6,6 +6,7 @@ import dynamic from "next/dynamic";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { ArrowLeft, FileUp, Loader2, Sparkles, X, AlertTriangle } from "lucide-react";
 import { PdfReader } from "@/components/PdfReader";
+import { MotionProvider, m, AnimatePresence, ease } from "@/components/Motion";
 const ResultView = dynamic(() => import("@/components/ResultView").then((m) => m.ResultView), { ssr: false });
 
 interface BookMeta {
@@ -177,101 +178,136 @@ export default function Reader() {
   // ---------- upload screen ----------
   if (!pdf) {
     return (
-      <main className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center px-4 py-12">
-        <div className="w-full max-w-xl">
-          <Link href="/" className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white mb-6">
-            <ArrowLeft className="w-3.5 h-3.5" /> Back to search
-          </Link>
-          <h1 className="text-3xl font-black tracking-tight mb-1">Simuplug Reader</h1>
-          <p className="text-sm text-slate-400 mb-6">
-            Upload a textbook PDF from NCTB. Highlight any word or sentence and click <b>Simulate</b>.
-          </p>
+      <MotionProvider>
+        <main className="min-h-screen flex flex-col items-center px-4 py-12">
+          <m.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, ease }} className="w-full max-w-xl">
+            <Link href="/" className="inline-flex items-center gap-1.5 text-xs font-semibold mb-6 hover:underline" style={{ color: "var(--blue-deep)" }}>
+              <ArrowLeft className="w-3.5 h-3.5" /> Back to search
+            </Link>
+            <h1 className="gradient-text text-4xl font-black tracking-tight mb-2">Simuplug Reader</h1>
+            <p className="text-sm mb-7" style={{ color: "var(--mute)" }}>
+              Upload a textbook PDF from NCTB. Highlight any word or sentence and click <b>Simulate</b>.
+            </p>
 
-          <label className="flex flex-col items-center justify-center gap-2 p-10 rounded-3xl border-2 border-dashed border-slate-700 hover:border-indigo-500 bg-slate-900/50 cursor-pointer transition">
-            {loading ? <Loader2 className="w-6 h-6 animate-spin text-indigo-400" /> : <FileUp className="w-6 h-6 text-indigo-400" />}
-            <span className="text-sm font-semibold">{loading ? "Opening…" : "Choose a PDF"}</span>
-            <span className="text-xs text-slate-500">{fileName || "Only the supported class 9–10 textbooks"}</span>
-            <input
-              type="file"
-              accept="application/pdf"
-              className="hidden"
-              disabled={loading}
-              onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])}
-            />
-          </label>
+            <m.label
+              whileHover={{ y: -4 }}
+              className="glass flex flex-col items-center justify-center gap-3 p-12 rounded-[28px] cursor-pointer"
+              style={{ borderStyle: "dashed", borderWidth: 2, borderColor: "var(--ice-300)" }}
+            >
+              <span className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ background: "linear-gradient(135deg,#60a5fa,#38bdf8)", boxShadow: "0 10px 26px rgba(56,189,248,0.45)" }}>
+                {loading ? <Loader2 className="w-6 h-6 animate-spin text-white" /> : <FileUp className="w-6 h-6 text-white" />}
+              </span>
+              <span className="text-base font-bold" style={{ color: "var(--ink)" }}>{loading ? "Opening…" : "Choose a PDF"}</span>
+              <span className="text-xs" style={{ color: "var(--mute)" }}>{fileName || "Only the supported textbooks"}</span>
+              <input
+                type="file"
+                accept="application/pdf"
+                className="hidden"
+                disabled={loading}
+                onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])}
+              />
+            </m.label>
 
-          {error && (
-            <div className="mt-5 p-4 rounded-2xl bg-rose-950/40 border border-rose-500/30 text-rose-200 text-sm flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" /> {error}
-            </div>
-          )}
+            <AnimatePresence>
+              {error && (
+                <m.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="mt-5 p-4 rounded-2xl text-sm flex items-start gap-2"
+                  style={{ background: "rgba(255,241,242,0.85)", border: "1px solid #fecdd3", color: "#be123c" }}
+                >
+                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" /> {error}
+                </m.div>
+              )}
+            </AnimatePresence>
 
-          {choices.length > 1 && (
-            <div className="mt-5 p-4 rounded-2xl bg-slate-900 border border-slate-700">
-              <p className="text-sm mb-3">This PDF fits more than one book. Which one is it?</p>
-              <div className="flex gap-2 flex-wrap">
-                {choices.map((b) => (
-                  <button key={b.id} onClick={() => pick(b)} className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-sm font-semibold">
-                    {b.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      </main>
+            {choices.length > 1 && (
+              <m.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass mt-5 p-5 rounded-2xl">
+                <p className="text-sm mb-3 font-medium">This PDF fits more than one book. Which one is it?</p>
+                <div className="flex gap-2 flex-wrap">
+                  {choices.map((b) => (
+                    <button key={b.id} onClick={() => pick(b)} className="btn-ice px-4 py-2 text-sm">
+                      {b.name}
+                    </button>
+                  ))}
+                </div>
+              </m.div>
+            )}
+          </m.div>
+        </main>
+      </MotionProvider>
     );
   }
 
   // ---------- reader ----------
   return (
-    <div className="h-screen flex flex-col bg-slate-950 text-slate-100">
-      <header className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800 bg-slate-900 shrink-0">
-        <div className="flex items-center gap-3 min-w-0">
-          <Link href="/" className="text-slate-400 hover:text-white">
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-          <div className="text-sm font-semibold truncate">{book?.name}</div>
-          <div className="text-[11px] text-slate-500 hidden sm:block">Highlight text → Simulate</div>
-        </div>
-        <label className="text-xs text-indigo-300 hover:text-indigo-200 cursor-pointer underline">
-          Open another PDF
-          <input type="file" accept="application/pdf" className="hidden" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
-        </label>
-      </header>
+    <MotionProvider>
+      <div className="h-screen flex flex-col">
+        <header className="glass-strong flex items-center justify-between px-5 py-3 shrink-0 z-20" style={{ borderRadius: 0, borderTop: 0, borderLeft: 0, borderRight: 0 }}>
+          <div className="flex items-center gap-3 min-w-0">
+            <Link href="/" className="p-1.5 rounded-full hover:bg-white/70 transition" style={{ color: "var(--blue-deep)" }}>
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+            <div className="text-sm font-bold truncate" style={{ color: "var(--ink)" }}>{book?.name}</div>
+            <div className="chip hidden sm:inline-flex">Highlight text → Simulate</div>
+          </div>
+          <label className="btn-ice px-4 py-2 text-xs cursor-pointer">
+            Open another PDF
+            <input type="file" accept="application/pdf" className="hidden" onChange={(e) => e.target.files?.[0] && onFile(e.target.files[0])} />
+          </label>
+        </header>
 
-      <div className="flex-1 flex min-h-0">
-        <div ref={scrollRef} className="flex-1 overflow-y-auto bg-slate-800/60">
-          {pageWidth > 0 && book && <PdfReader pdf={pdf} bookId={book.id} width={pageWidth} />}
+        <div className="flex-1 flex min-h-0 relative">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto" style={{ background: "linear-gradient(180deg, rgba(207,232,251,0.5), rgba(234,246,255,0.7))" }}>
+            {pageWidth > 0 && book && <PdfReader pdf={pdf} bookId={book.id} width={pageWidth} />}
+          </div>
+
+          <AnimatePresence>
+            {panelQuery && (
+              <m.aside
+                key="panel"
+                initial={{ x: 60, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 60, opacity: 0 }}
+                transition={{ duration: 0.45, ease }}
+                className="glass-strong w-full sm:w-[560px] shrink-0 flex flex-col absolute sm:static inset-0 z-30"
+                style={{ borderRadius: 0, borderTop: 0, borderBottom: 0, borderRight: 0 }}
+              >
+                <div className="flex items-center justify-between px-5 py-3 shrink-0" style={{ borderBottom: "1px solid var(--glass-border)" }}>
+                  <span className="text-sm font-bold flex items-center gap-2" style={{ color: "var(--ink)" }}>
+                    <Sparkles className="w-4 h-4" style={{ color: "var(--blue)" }} /> Simulation
+                  </span>
+                  <button onClick={() => setPanelQuery("")} className="p-1.5 rounded-full hover:bg-white/80 transition" style={{ color: "var(--mute)" }}>
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto p-5">
+                  <ResultView query={panelQuery} book={book?.name} onPickRelated={setPanelQuery} />
+                </div>
+              </m.aside>
+            )}
+          </AnimatePresence>
         </div>
 
-        {panelQuery && (
-          <aside className="w-full sm:w-[540px] shrink-0 border-l border-slate-800 bg-slate-950 flex flex-col absolute sm:static inset-0 top-[49px] z-30">
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-800 bg-slate-900 shrink-0">
-              <span className="text-xs font-semibold flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-400" /> Simulation
-              </span>
-              <button onClick={() => setPanelQuery("")} className="p-1 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4">
-              <ResultView query={panelQuery} book={book?.name} onPickRelated={setPanelQuery} />
-            </div>
-          </aside>
-        )}
+        <AnimatePresence>
+          {popup && (
+            <m.button
+              key="pop"
+              initial={{ opacity: 0, scale: 0.7, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ type: "spring", stiffness: 420, damping: 26 }}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={simulate}
+              style={{ position: "fixed", left: popup.x, top: popup.y, x: "-50%" }}
+              className="btn-ice z-50 px-4 py-2 text-xs"
+            >
+              <Sparkles className="w-3.5 h-3.5" /> Simulate
+            </m.button>
+          )}
+        </AnimatePresence>
       </div>
-
-      {popup && (
-        <button
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={simulate}
-          style={{ position: "fixed", left: popup.x, top: popup.y, transform: "translateX(-50%)" }}
-          className="z-50 flex items-center gap-1.5 px-3 py-2 rounded-full bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold shadow-xl border border-indigo-400/40"
-        >
-          <Sparkles className="w-3.5 h-3.5" /> Simulate
-        </button>
-      )}
-    </div>
+    </MotionProvider>
   );
 }

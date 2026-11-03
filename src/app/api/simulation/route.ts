@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { pool } from "@/lib/db";
-import { museComplete, museStream } from "@/lib/muse";
+import { MUSE_MODEL, museComplete, museStream } from "@/lib/muse";
 import { SIM_SYSTEM_PROMPT, buildSimUserPrompt, SimContext } from "@/lib/openui/sim-prompt";
 import { validateOpenUi } from "@/lib/openui/validate";
 
@@ -49,15 +49,22 @@ export async function POST(req: NextRequest) {
         code = clean(code);
 
         let v = await validateOpenUi(code);
-        for (let attempt = 0; !v.ok && attempt < 2; attempt++) {
+        // Hard errors: up to 2 repair passes. Layout warnings (overlapping text): one repair pass, never blocking.
+        for (let attempt = 0; (!v.ok || (attempt === 0 && v.warnings.length)) && attempt < 2; attempt++) {
           send({ t: "reset" });
-          code = clean(
+          const issues = [...v.errors, ...v.warnings.map((w) => `Layout: ${w}. Move or shorten things so no text overlaps and everything stays inside the canvas.`)];
+          const fixed = clean(
             await museComplete(
-              [sys, { role: "user", content: buildSimUserPrompt(ctx, { code, errors: v.errors }) }],
+              [sys, { role: "user", content: buildSimUserPrompt(ctx, { code, errors: issues }) }],
               28000
             )
           );
-          v = await validateOpenUi(code);
+          const v2 = await validateOpenUi(fixed);
+          // keep the repaired version only if it is valid (a broken repair must not replace a working simulation)
+          if (v2.ok || !v.ok) {
+            code = fixed;
+            v = v2;
+          }
         }
         if (!v.ok) {
           send({ t: "error", message: `Could not produce a valid simulation: ${v.errors.join("; ")}` });
@@ -70,7 +77,7 @@ export async function POST(req: NextRequest) {
           `INSERT INTO simulations (chunk_id, title, openui_code, embedding, model)
            SELECT id, title, $2, embedding, $3 FROM chunks WHERE id = $1
            ON CONFLICT (chunk_id) DO NOTHING RETURNING id`,
-          [chunkId, code, process.env.BASETEN_MODEL || "meta-models/muse-spark-open-1026"]
+          [chunkId, code, MUSE_MODEL()]
         );
         send({ t: "stored", id: ins.rows[0]?.id ?? null });
       } catch (e) {

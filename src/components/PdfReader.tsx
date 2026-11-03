@@ -72,7 +72,7 @@ const PdfPage: React.FC<PageProps> = ({ pdf, bookId, pageNumber, width }) => {
     <div
       ref={hostRef}
       data-page={pageNumber}
-      className="relative mx-auto mb-4 bg-white shadow-lg"
+      className="pdf-page relative mx-auto mb-5 bg-white"
       style={{ width, height }}
     >
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
