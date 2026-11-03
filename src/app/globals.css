@@ -209,3 +209,7 @@ body {
   border-radius: 6px;
   box-shadow: 0 8px 30px rgba(59, 130, 246, 0.18), 0 1px 0 rgba(255, 255, 255, 0.9);
 }
+
+/* The simulation always comes first; the explainer text and steps follow it. */
+.openui-app-container [class*="openui-stack"] > .sim-canvas,
+.openui-app-container .sim-canvas { order: -1; }

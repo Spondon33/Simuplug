@@ -1,0 +1,30 @@
+[
+ {
+  "id": "s1",
+  "text": "Every student in Bangladesh learns from NCTB textbooks. But a textbook can only show a frozen diagram. What if every topic could move, and respond when you touch it?"
+ },
+ {
+  "id": "s2",
+  "text": "This is Simuplug. Search any topic from your textbooks, and Meta's Muse Wonder builds an interactive simulation from the exact page. Everything you'll see was built during this hackathon."
+ },
+ {
+  "id": "s3",
+  "text": "Let's search refraction of light. Simuplug finds the right section, and Muse Wonder writes a live simulation, with controls, formulas, and real-time readouts. Move a slider, and the light ray bends right in front of you. A short summary from the same book sits below."
+ },
+ {
+  "id": "s4",
+  "text": "And it works across every subject. Chemistry: Rutherford's atomic model. Biology: photosynthesis, inside a living leaf. Mathematics: the Pythagorean theorem, with squares you can resize. Even geography, the land of Bangladesh, on a real map."
+ },
+ {
+  "id": "s5",
+  "text": "So how does it work? We split twenty-two textbooks into more than two thousand six hundred sections, embedded them with EmbeddingGemma 2, and stored the vectors in Neon. But retrieval only finds the page. The real work is Muse Wonder writing a program in OpenUI Lang. And we don't just trust it. Every simulation is parsed, syntax checked, and dry run in a sandbox, to catch crashes, broken numbers, and overlapping text. If anything fails, Muse repairs its own code. Then it's cached per topic, and a Muse judge decides if a new search is the same topic, so a student only waits once."
+ },
+ {
+  "id": "s6",
+  "text": "Students can also upload the real NCTB PDF. We match it to its stored word positions in Neon, so nothing is OCR'd in the browser. Select any paragraph, press Simulate, and the simulation opens right beside the page."
+ },
+ {
+  "id": "s7",
+  "text": "Simuplug. Twenty-two textbooks, and a simulation for every topic. Open source, and built on Muse Wonder."
+ }
+]

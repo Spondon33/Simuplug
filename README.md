@@ -3,6 +3,35 @@
 Search any topic from the textbooks in `OCR-Converted-HTML/`. The site returns a short summary and
 interactive simulations built from the matching book sections.
 
+![Simuplug home page](docs/screenshots/home.jpg)
+
+## What it looks like
+
+Every result is one interactive simulation at the top, followed by the textbook summary and related topics. Each one below was
+written by Muse Wonder 1.0 from the matching textbook section.
+
+| Physics: refraction of light | Chemistry: Rutherford's atomic model |
+| --- | --- |
+| ![Refraction of light simulation](docs/screenshots/physics-refraction.jpg) | ![Rutherford atomic model simulation](docs/screenshots/chemistry-rutherford.jpg) |
+
+| Biology: photosynthesis | Mathematics: the Pythagorean theorem |
+| --- | --- |
+| ![Photosynthesis simulation](docs/screenshots/biology-photosynthesis.jpg) | ![Pythagorean theorem simulation](docs/screenshots/math-pythagoras.jpg) |
+
+**Geography: land configuration of Bangladesh**, drawn on a real border instead of a hand-drawn outline:
+
+![Bangladesh physiography simulation](docs/screenshots/geography-bangladesh.jpg)
+
+## PDF reader
+
+Upload an NCTB textbook PDF. It is matched to a book already stored in Neon (by page count and page shape), and the stored word
+positions are laid over the pages as selectable text, so no OCR runs in the browser. Highlight any passage and press **Simulate**:
+the simulation and summary open beside the page.
+
+| Highlight a passage | Simulate it beside the page |
+| --- | --- |
+| ![Highlighting text in the PDF reader](docs/screenshots/reader-highlight.jpg) | ![Simulation opened next to the PDF page](docs/screenshots/reader-simulation.jpg) |
+
 ## Built with Muse Wonder 1.0
 
 All text and simulation generation in Simuplug is done by **Muse Wonder 1.0** (`muse-wonder-1.0`, via the Meta API at

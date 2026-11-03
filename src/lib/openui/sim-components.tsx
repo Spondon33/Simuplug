@@ -81,11 +81,7 @@ export const SimCanvasComponent = defineComponent({
       });
     };
     return (
-      <div ref={wrapRef} className="relative w-full glass rounded-3xl overflow-hidden my-2">
-        <div className="px-5 py-3.5 text-xs" style={{ background: "linear-gradient(120deg, rgba(212,236,255,0.75), rgba(255,255,255,0.5))", borderBottom: "1px solid rgba(255,255,255,0.9)" }}>
-          <div className="text-[15px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>{props.title}</div>
-          <div className="mt-0.5" style={{ color: "var(--mute)" }}>{props.caption}</div>
-        </div>
+      <div ref={wrapRef} className="sim-canvas relative w-full glass rounded-3xl overflow-hidden my-2">
         {streaming || (near && !html) ? (
           <div style={{ height: props.height || 720, color: "var(--mute)" }} className="flex items-center justify-center gap-2 text-xs">
             <Loader2 className="w-4 h-4 animate-spin" /> Building the simulation…
@@ -109,6 +105,10 @@ export const SimCanvasComponent = defineComponent({
             <Loader2 className="w-4 h-4 animate-spin" /> Starting the simulation…
           </div>
         )}
+        <div className="px-5 py-3.5 text-xs" style={{ background: "linear-gradient(120deg, rgba(212,236,255,0.75), rgba(255,255,255,0.5))", borderTop: "1px solid rgba(255,255,255,0.9)" }}>
+          <div className="text-[15px] font-bold tracking-tight" style={{ color: "var(--ink)" }}>{props.title}</div>
+          <div className="mt-0.5" style={{ color: "var(--mute)" }}>{props.caption}</div>
+        </div>
         {failed && <div className="px-4 py-2 text-xs" style={{ color: "#be123c", background: "rgba(255,241,242,0.9)" }}>The simulation could not start. Search again to retry.</div>}
       </div>
     );

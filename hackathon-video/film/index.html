@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=1920, height=1080"/>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+<style>:root{--ink:#0f2742;--mute:#5b7089;--blue:#3b82f6;--deep:#1d4ed8;--font:"Inter",sans-serif}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:1920px;height:1080px;overflow:hidden;background:#eaf5ff}
+#root{position:relative;width:1920px;height:1080px;overflow:hidden;font-family:var(--font);color:var(--ink);background:#eaf5ff}
+.vid{position:absolute;left:0;top:0;width:1920px;height:1080px;object-fit:cover}
+.scene{position:absolute;inset:0}
+.center{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.bg{position:absolute;inset:0;background:radial-gradient(1100px 700px at 8% -8%,#fff 0%,rgba(255,255,255,0) 62%),radial-gradient(900px 700px at 100% 6%,#cfe8fb 0%,rgba(207,232,251,0) 58%),linear-gradient(180deg,#f7fbff 0%,#e2f1ff 100%)}
+.veil{position:absolute;inset:0;background:rgba(240,248,255,0.55)}
+.cap{position:absolute;left:0;right:0;bottom:150px;text-align:center;font-weight:800;color:var(--ink);letter-spacing:-0.02em}
+.cap.big{font-size:76px;line-height:1.15;margin:0 auto;width:1500px;left:210px;right:auto;padding:28px 40px;background:rgba(255,255,255,0.82);border:2px solid #fff;border-radius:40px;box-shadow:0 24px 70px rgba(59,130,246,0.25)}
+.cap em{font-style:normal;color:var(--blue)}
+.book{position:absolute;border-radius:8px 14px 14px 8px;box-shadow:0 30px 40px rgba(59,130,246,0.22)}
+.book::before{content:"";position:absolute;left:0;top:0;bottom:0;width:14%;background:rgba(15,39,66,0.18);border-radius:8px 0 0 8px}
+.book::after{content:"";position:absolute;left:28%;right:14%;top:16%;height:9%;background:rgba(255,255,255,0.75);border-radius:4px}
+.chip{font-size:28px;font-weight:700;color:var(--deep);background:rgba(212,236,255,0.9);border:2px solid #fff;border-radius:999px;padding:10px 28px;margin-bottom:30px}
+#brand,#gbrand{font-size:230px;font-weight:900;letter-spacing:-0.04em;line-height:1.1;padding:0 12px 16px;background:linear-gradient(120deg,#0f2742 10%,#2563eb 55%,#38bdf8 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+#tag{font-size:46px;color:var(--mute);margin-top:6px;font-weight:500}
+.row{display:flex;gap:18px;margin-top:44px}
+.pill{font-size:30px;font-weight:700;color:var(--deep);background:rgba(255,255,255,0.85);border:2px solid #fff;border-radius:999px;padding:12px 28px;box-shadow:0 12px 30px rgba(59,130,246,0.18)}
+#built{margin-top:40px;font-size:32px;font-weight:700;color:#047857;background:rgba(209,250,229,0.9);border-radius:999px;padding:12px 30px}
+.chipbar{position:absolute;left:60px;width:1040px;bottom:40px;text-align:center;font-size:38px;font-weight:600;color:var(--ink);background:rgba(255,255,255,0.9);border:2px solid #fff;border-radius:999px;padding:16px 36px;box-shadow:0 18px 50px rgba(59,130,246,0.3)}
+.chipbar b{color:var(--deep);font-weight:800}
+.badge{position:absolute;right:200px;top:110px;font-size:30px;font-weight:700;color:#b45309;background:rgba(254,243,199,0.95);border:2px solid #fff;border-radius:999px;padding:12px 28px;box-shadow:0 14px 40px rgba(180,83,9,0.22)}
+.badge.ok{color:#047857;background:rgba(209,250,229,0.95)}
+.vid[id^=dt],.vid[id^=df]{}
+.vid[id^=dt]{width:840px;height:472px;border-radius:28px;border:3px solid #fff;box-shadow:0 24px 60px rgba(59,130,246,0.3)}
+.tilelab{position:absolute;font-size:28px;font-weight:800;letter-spacing:0.06em;color:var(--deep);background:rgba(255,255,255,0.92);border-radius:999px;padding:8px 22px}
+.rail{position:absolute;left:0;right:0;top:110px;display:flex;justify-content:center;gap:22px}
+.rp{font-size:34px;font-weight:800;color:var(--deep);background:rgba(255,255,255,0.75);border:2px solid #fff;border-radius:999px;padding:12px 34px;display:flex;gap:14px;align-items:center}
+.rp span{display:inline-flex;width:44px;height:44px;border-radius:50%;background:rgba(59,130,246,0.18);align-items:center;justify-content:center;font-size:26px}
+.panel{position:absolute;left:0;top:230px;width:1920px;height:760px}
+.flow{position:absolute;left:150px;top:120px;display:flex;align-items:center;gap:20px}
+.node{width:340px;height:300px;background:rgba(255,255,255,0.8);border:2px solid #fff;border-radius:36px;box-shadow:0 24px 70px rgba(59,130,246,0.22);padding:34px 28px;text-align:center}
+.big{font-size:74px;font-weight:900;color:var(--blue);letter-spacing:-0.03em;line-height:1.1}
+.nt{font-size:34px;font-weight:800;margin-top:14px}.ns{font-size:25px;color:var(--mute);margin-top:8px}
+.arr{font-size:56px;font-weight:800;color:#38bdf8}
+.note{position:absolute;left:260px;top:520px;width:1400px;text-align:center;font-size:44px;font-weight:700;color:var(--mute)}
+.gen{position:absolute;left:150px;top:30px;display:flex;gap:44px}
+.mw{width:520px;height:560px;background:linear-gradient(160deg,#60a5fa,#38bdf8);color:#fff;border-radius:40px;padding:50px 40px;box-shadow:0 30px 80px rgba(56,189,248,0.5)}
+.mwt{font-size:56px;font-weight:900;letter-spacing:-0.02em}.mws{font-size:30px;font-weight:600;opacity:.9;margin-top:8px}.mwp{font-size:32px;font-weight:600;margin-top:60px;line-height:1.4}
+.codewin{width:1100px;height:560px;background:rgba(255,255,255,0.92);border:2px solid #fff;border-radius:36px;box-shadow:0 24px 70px rgba(59,130,246,0.22);padding:30px 40px;font-family:"JetBrains Mono",monospace;overflow:hidden}
+.cwh{font-family:var(--font);font-size:26px;font-weight:800;color:var(--deep);margin-bottom:24px}
+.cl{font-size:27px;line-height:1.62;color:#16324f;white-space:pre}
+.checks{position:absolute;left:380px;top:20px;width:1160px;display:flex;flex-direction:column;gap:26px}
+.ck{display:flex;gap:30px;align-items:center;background:rgba(255,255,255,0.85);border:2px solid #fff;border-radius:32px;padding:24px 36px;box-shadow:0 18px 50px rgba(59,130,246,0.18)}
+.ci{width:70px;height:70px;border-radius:50%;background:#10b981;color:#fff;font-size:42px;font-weight:900;display:flex;align-items:center;justify-content:center;flex:none}
+.ct{font-size:42px;font-weight:800}.cs{font-size:28px;color:var(--mute);margin-top:4px}
+.valid{position:absolute;left:380px;top:640px;width:1160px;text-align:center;font-size:44px;font-weight:800;color:#047857;background:rgba(209,250,229,0.95);border-radius:999px;padding:18px}
+.judge{position:absolute;left:230px;top:20px;width:1460px}
+.jt{font-size:50px;font-weight:900;text-align:center;margin-bottom:50px}
+.jr{display:flex;align-items:center;gap:24px;background:rgba(255,255,255,0.85);border:2px solid #fff;border-radius:36px;padding:34px 40px;margin-bottom:36px;box-shadow:0 18px 50px rgba(59,130,246,0.18)}
+.q{font-size:38px;font-weight:700;background:rgba(212,236,255,0.8);border-radius:999px;padding:14px 30px}
+.vs{font-size:30px;color:var(--mute);font-weight:700}
+.verdict{margin-left:auto;display:flex;flex-direction:column;text-align:right}
+.verdict b{font-size:40px;font-weight:900}.verdict span{font-size:27px;color:var(--mute)}
+.verdict.bad b{color:#f43f5e}.verdict.ok b{color:#10b981}
+#gline{font-size:84px;font-weight:800;letter-spacing:-0.02em;margin-top:6px}#gline em{font-style:normal;color:var(--blue)}
+#gurl{margin-top:46px;font-size:48px;font-weight:700;color:var(--deep);background:rgba(255,255,255,0.9);border:2px solid #fff;border-radius:999px;padding:16px 44px;box-shadow:0 16px 44px rgba(59,130,246,0.25)}
+
+.ci{position:relative}.g{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-style:normal}
+
+.side{position:absolute;left:36px;width:390px;top:420px;font-size:32px;font-weight:600;line-height:1.3;color:var(--ink);background:rgba(255,255,255,0.92);border:2px solid #fff;border-radius:32px;padding:22px 26px;box-shadow:0 18px 50px rgba(59,130,246,0.3)}
+.side b{display:block;font-size:30px;font-weight:900;letter-spacing:0.06em;color:var(--deep);margin-bottom:6px}
+.side span{display:block;font-size:24px;font-weight:600;color:var(--mute);margin-top:8px}
+.sideb{position:absolute;right:36px;width:390px;top:160px;font-size:28px;font-weight:600;line-height:1.3;color:#b45309;background:rgba(254,243,199,0.96);border:2px solid #fff;border-radius:32px;padding:20px 26px;box-shadow:0 14px 40px rgba(180,83,9,0.22)}
+.sideb b{font-weight:900;letter-spacing:0.04em}.sideb.ok{color:#047857;background:rgba(209,250,229,0.96)}
+.cap.side2{left:100px;right:auto;width:760px;bottom:auto;top:380px;text-align:left;font-size:88px;line-height:1.12;padding:0}
+.vid[id^=dt]{width:800px;height:450px}
+.tilelab{font-size:30px}
+
+.node{width:350px}.big{font-size:62px}.nt{font-size:30px}
+</style></head><body>
+<div id="root" data-composition-id="main" data-start="0" data-duration="136.3" data-width="1920" data-height="1080">
+<video id="vh" class="clip vid" src="assets/footage/reader.mp4" muted playsinline data-start="0" data-duration="11.55" data-media-start="7.5" data-track-index="1" style="z-index:1;"></video>
+<video id="vt" class="clip vid" src="assets/footage/math.mp4" muted playsinline data-start="7.47" data-duration="4.08" data-media-start="13.62" data-track-index="3" style="z-index:3;left:900px;top:240px;width:960px;height:540px;border-radius:28px;border:3px solid #fff;box-shadow:0 30px 80px rgba(59,130,246,0.35);"></video>
+<video id="c1" class="clip vid" src="assets/footage/physics.mp4" muted playsinline data-start="23.3" data-duration="5.92" data-media-start="0.8" data-track-index="1" style="z-index:1;"></video>
+<video id="c2" class="clip vid" src="assets/footage/physics.mp4" muted playsinline data-start="29.22" data-duration="4.09" data-media-start="6.72" data-playback-rate="4" data-track-index="1" style="z-index:1;"></video>
+<video id="c3" class="clip vid" src="assets/footage/physics.mp4" muted playsinline data-start="33.31" data-duration="16.64" data-media-start="23.07" data-track-index="1" style="z-index:1;"></video>
+<video id="dt1" class="clip vid" src="assets/footage/physics.mp4" muted playsinline data-start="49.95" data-duration="2.54" data-media-start="29.68" data-track-index="3" style="z-index:3;left:100px;top:70px;width:800px;height:450px;"></video>
+<video id="dt2" class="clip vid" src="assets/footage/chemistry.mp4" muted playsinline data-start="49.95" data-duration="2.54" data-media-start="16.15" data-track-index="3" style="z-index:3;left:1020px;top:70px;width:800px;height:450px;"></video>
+<video id="dt3" class="clip vid" src="assets/footage/biology.mp4" muted playsinline data-start="49.95" data-duration="2.54" data-media-start="13.26" data-track-index="3" style="z-index:3;left:100px;top:594px;width:800px;height:450px;"></video>
+<video id="dt4" class="clip vid" src="assets/footage/math.mp4" muted playsinline data-start="49.95" data-duration="2.54" data-media-start="13.82" data-track-index="3" style="z-index:3;left:1020px;top:594px;width:800px;height:450px;"></video>
+<video id="df1" class="clip vid" src="assets/footage/chemistry.mp4" muted playsinline data-start="52.49" data-duration="2.73" data-media-start="15.65" data-track-index="5" style="z-index:5;"></video>
+<video id="df2" class="clip vid" src="assets/footage/biology.mp4" muted playsinline data-start="55.22" data-duration="3.46" data-media-start="12.76" data-track-index="5" style="z-index:5;"></video>
+<video id="df3" class="clip vid" src="assets/footage/math.mp4" muted playsinline data-start="58.67" data-duration="4.41" data-media-start="13.32" data-track-index="5" style="z-index:5;"></video>
+<video id="df4" class="clip vid" src="assets/footage/bangladesh.mp4" muted playsinline data-start="63.09" data-duration="4.78" data-media-start="14.41" data-track-index="5" style="z-index:5;"></video>
+<video id="f1" class="clip vid" src="assets/footage/reader.mp4" muted playsinline data-start="104.44" data-duration="9.1" data-media-start="8.48" data-playback-rate="1.879" data-track-index="1" style="z-index:1;"></video>
+<video id="f2" class="clip vid" src="assets/footage/reader.mp4" muted playsinline data-start="113.54" data-duration="2.18" data-media-start="25.57" data-playback-rate="1.53" data-track-index="1" style="z-index:1;"></video>
+<video id="f3" class="clip vid" src="assets/footage/reader.mp4" muted playsinline data-start="115.72" data-duration="11.0" data-media-start="28.9" data-track-index="1" style="z-index:1;"></video>
+<div id="hveil" class="clip veil" data-start="0" data-duration="11.55" data-track-index="2" style="z-index:2;"></div>
+<div id="h0" class="clip cap big" data-start="0.5" data-duration="3.94" data-track-index="12" style="z-index:12;">Every student in Bangladesh<br>learns from NCTB textbooks.</div>
+<div id="h1" class="clip cap big" data-start="4.49" data-duration="2.68" data-track-index="12" style="z-index:12;">But a textbook can only<br>show a frozen diagram.</div>
+<div id="h2" class="clip cap side2" data-start="7.17" data-duration="4.38" data-track-index="12" style="z-index:12;">What if every topic<br>could <em>move</em>?</div>
+<div id="bbg" class="clip bg" data-start="11.55" data-duration="11.75" data-track-index="1" style="z-index:1;"></div>
+<div id="bbooks" class="clip scene" data-start="11.55" data-duration="11.75" data-track-index="2" style="z-index:2;"><div class="book" id="b1" style="left:110px;top:150px;width:150px;height:200px;background:linear-gradient(135deg,#60a5fa,#93c5fd)"></div><div class="book" id="b2" style="left:1650px;top:120px;width:130px;height:176px;background:linear-gradient(135deg,#38bdf8,#bae6fd)"></div><div class="book" id="b3" style="left:230px;top:760px;width:170px;height:226px;background:linear-gradient(135deg,#a5d8ff,#dbeeff)"></div><div class="book" id="b4" style="left:1560px;top:700px;width:150px;height:200px;background:linear-gradient(135deg,#3b82f6,#7dd3fc)"></div><div class="book" id="b5" style="left:900px;top:40px;width:90px;height:122px;background:linear-gradient(135deg,#93c5fd,#e0f2fe)"></div></div>
+<div id="btitle" class="clip scene center" data-start="11.55" data-duration="11.75" data-track-index="5" style="z-index:5;"><div class="chip" id="bchip">Meta Global AI Developer Hackathon</div><div id="brand">Simuplug</div><div id="tag">Any textbook topic, as an interactive simulation.</div><div class="row" id="brow"><span class="pill">Meta Muse Wonder 1.0</span><span class="pill">OpenUI Lang</span><span class="pill">Neon pgvector</span><span class="pill">EmbeddingGemma 2</span></div><div id="built">Everything shown was built during the hackathon</div></div>
+<div id="cchip" class="clip side" data-start="24.8" data-duration="24.75" data-track-index="12" style="z-index:12;"><b>PHYSICS</b><br>Refraction of light<span>Science 9–10 · §5.2</span></div>
+<div id="clapse" class="clip sideb" data-start="29.22" data-duration="4.09" data-track-index="13" style="z-index:13;">⏩ <b>TIME-LAPSE ×4</b><br>Muse Wonder is writing the simulation, live</div>
+<div id="clive" class="clip sideb ok" data-start="33.81" data-duration="6.5" data-track-index="13" style="z-index:13;">✓ <b>Generated live</b><br>validated and stored in Neon</div>
+<div id="dbg" class="clip bg" data-start="49.95" data-duration="17.92" data-track-index="1" style="z-index:1;"></div>
+<div id="dt1l" class="clip tilelab" data-start="49.95" data-duration="2.54" data-track-index="4" style="z-index:4;left:100px;top:22px;">PHYSICS</div>
+<div id="dt2l" class="clip tilelab" data-start="49.95" data-duration="2.54" data-track-index="4" style="z-index:4;left:1020px;top:22px;">CHEMISTRY</div>
+<div id="dt3l" class="clip tilelab" data-start="49.95" data-duration="2.54" data-track-index="4" style="z-index:4;left:100px;top:546px;">BIOLOGY</div>
+<div id="dt4l" class="clip tilelab" data-start="49.95" data-duration="2.54" data-track-index="4" style="z-index:4;left:1020px;top:546px;">MATHEMATICS</div>
+<div id="df1c" class="clip side" data-start="52.59" data-duration="2.53" data-track-index="12" style="z-index:12;"><b>CHEMISTRY</b><br>Rutherford’s atomic model</div>
+<div id="df2c" class="clip side" data-start="55.32" data-duration="3.26" data-track-index="12" style="z-index:12;"><b>BIOLOGY</b><br>Photosynthesis inside a leaf</div>
+<div id="df3c" class="clip side" data-start="58.77" data-duration="4.21" data-track-index="12" style="z-index:12;"><b>MATHEMATICS</b><br>The Pythagorean theorem</div>
+<div id="df4c" class="clip side" data-start="63.19" data-duration="4.58" data-track-index="12" style="z-index:12;"><b>GEOGRAPHY</b><br>Land configuration of Bangladesh, on a real map</div>
+<div id="ebg" class="clip bg" data-start="67.86" data-duration="36.58" data-track-index="1" style="z-index:1;"></div>
+<div id="erail" class="clip rail" data-start="67.86" data-duration="36.58" data-track-index="6" style="z-index:6;"><div class="rp" id="rp0"><span>1</span>Retrieve</div><div class="rp" id="rp1"><span>2</span>Generate</div><div class="rp" id="rp2"><span>3</span>Validate</div><div class="rp" id="rp3"><span>4</span>Remember</div></div>
+<div id="ep1" class="clip panel" data-start="69.64" data-duration="9.91" data-track-index="7" style="z-index:7;"><div class="flow"><div class="node" id="n1_0"><div class="big" id="n1v0">22</div><div class="nt">textbooks</div><div class="ns">OCR’d NCTB books</div></div><div class="arr" id="a1_0">→</div><div class="node" id="n1_1"><div class="big" id="n1v1">2,647</div><div class="nt">sections</div><div class="ns">chunked by chapter</div></div><div class="arr" id="a1_1">→</div><div class="node" id="n1_2"><div class="big" id="n1v2">768-d</div><div class="nt">EmbeddingGemma 2</div><div class="ns">local embeddings</div></div><div class="arr" id="a1_2">→</div><div class="node" id="n1_3"><div class="big" id="n1v3">pgvector</div><div class="nt">Neon Postgres</div><div class="ns">HNSW cosine search</div></div></div><div class="note" id="n1note">Retrieval finds the page… but a page is still just a page.</div></div>
+<div id="ep2" class="clip panel" data-start="79.55" data-duration="4.05" data-track-index="7" style="z-index:7;"><div class="gen"><div class="mw"><div class="mwt">Muse Wonder 1.0</div><div class="mws">Meta Model API</div><div class="mwp">prompt: section text + figures<br>→ OpenUI Lang program</div></div><div class="codewin"><div class="cwh">Real output · “Refraction of light”</div><div class="cl" id="cl0">root = Stack([header, explainer, sim, points])</div><div class="cl" id="cl1">sim = SimCanvas("Bending at the air–water boundary",</div><div class="cl" id="cl2">  "slider('i','Angle of incidence i',0,80,1,38,'deg');</div><div class="cl" id="cl3">   toggle('Show unbent path',true);</div><div class="cl" id="cl4">   formula(function(){ return 'n1 sin i = n2 sin r' });</div><div class="cl" id="cl5">   loop(function(t,dt){ clear(); drawRays(); drawGraph(); })")</div></div></div></div>
+<div id="ep3" class="clip panel" data-start="83.6" data-duration="13.11" data-track-index="7" style="z-index:7;"><div class="checks"><div class="ck" id="ck0"><div class="ci" id="ci0">✓</div><div><div class="ct">Parse OpenUI Lang</div><div class="cs">valid components, no hallucinated tags</div></div></div><div class="ck" id="ck1"><div class="ci" id="ci1">✓</div><div><div class="ct">Syntax check</div><div class="cs">the simulation script compiles</div></div></div><div class="ck" id="ck2"><div class="ci" id="ci2"><i class="g gw">…</i><i class="g gx">✕</i><i class="g gv">✓</i></div><div><div class="ct">Sandbox dry-run</div><div class="cs">crashes · NaN values · overlapping text</div></div></div><div class="ck" id="ck3"><div class="ci" id="ci3">✓</div><div><div class="ct">Repair loop</div><div class="cs">Muse fixes its own code from the error report</div></div></div></div><div class="valid" id="valid">✓ Valid → stored in Neon</div></div>
+<div id="ep4" class="clip panel" data-start="96.72" data-duration="7.12" data-track-index="7" style="z-index:7;"><div class="judge"><div class="jt">Cached per topic · a Muse judge decides</div><div class="jr" id="jr0"><div class="q">Rutherford’s atomic model</div><div class="vs">vs</div><div class="q">Bohr’s atomic model</div><div class="verdict bad"><b>DIFFERENT topic</b><span>generate a new simulation</span></div></div><div class="jr" id="jr1"><div class="q">Refraction of light</div><div class="vs">vs</div><div class="q">bending of light, explained</div><div class="verdict ok"><b>SAME topic</b><span>reuse from Neon, instantly</span></div></div></div></div>
+<div id="fc1" class="clip chipbar" data-start="104.84" data-duration="2.9" data-track-index="12" style="z-index:12;">Upload the <b>real NCTB PDF</b></div>
+<div id="fc2" class="clip chipbar" data-start="108.04" data-duration="5.2" data-track-index="12" style="z-index:12;">Matched to word positions <b>stored in Neon</b> · no OCR in the browser</div>
+<div id="fc4" class="clip chipbar" data-start="116.02" data-duration="10.4" data-track-index="12" style="z-index:12;">Highlight → <b>Simulate</b> → opens beside the page</div>
+<div id="fc3" class="clip sideb" data-start="120.04" data-duration="3.9" data-track-index="13" style="z-index:13;">✓ <b>Reused from Neon</b><br>same topic, instant</div>
+<div id="gbg" class="clip bg" data-start="126.72" data-duration="9.47" data-track-index="1" style="z-index:1;"></div>
+<div id="gbooks" class="clip scene" data-start="126.72" data-duration="9.47" data-track-index="2" style="z-index:2;"><div class="book" id="g1" style="left:110px;top:150px;width:150px;height:200px;background:linear-gradient(135deg,#60a5fa,#93c5fd)"></div><div class="book" id="g2" style="left:1650px;top:120px;width:130px;height:176px;background:linear-gradient(135deg,#38bdf8,#bae6fd)"></div><div class="book" id="g3" style="left:230px;top:760px;width:170px;height:226px;background:linear-gradient(135deg,#a5d8ff,#dbeeff)"></div><div class="book" id="g4" style="left:1560px;top:700px;width:150px;height:200px;background:linear-gradient(135deg,#3b82f6,#7dd3fc)"></div><div class="book" id="g5" style="left:900px;top:40px;width:90px;height:122px;background:linear-gradient(135deg,#93c5fd,#e0f2fe)"></div></div>
+<div id="gt" class="clip scene center" data-start="126.72" data-duration="9.47" data-track-index="5" style="z-index:5;"><div id="gbrand">Simuplug</div><div id="gline">Search it. <em>Simulate it.</em> Understand it.</div><div id="gurl">github.com/Spondon33/Simuplug</div><div class="row" id="grow"><span class="pill">Meta Muse Wonder 1.0</span><span class="pill">EmbeddingGemma 2</span><span class="pill">Neon pgvector</span><span class="pill">OpenUI Lang</span></div></div>
+<audio id="vo1" src="assets/vo/s1.wav" data-start="0.4" data-duration="10.35" data-volume="1" data-track-index="30"></audio>
+<audio id="vo2" src="assets/vo/s2.wav" data-start="11.85" data-duration="10.45" data-volume="1" data-track-index="30"></audio>
+<audio id="vo3" src="assets/vo/s3.wav" data-start="25.5" data-duration="16.49" data-volume="1" data-track-index="30"></audio>
+<audio id="vo4" src="assets/vo/s4.wav" data-start="50.45" data-duration="16.62" data-volume="1" data-track-index="30"></audio>
+<audio id="vo5" src="assets/vo/s5.wav" data-start="68.46" data-duration="34.98" data-volume="1" data-track-index="30"></audio>
+<audio id="vo6" src="assets/vo/s6.wav" data-start="104.94" data-duration="14.02" data-volume="1" data-track-index="30"></audio>
+<audio id="vo7" src="assets/vo/s7.wav" data-start="127.12" data-duration="7.67" data-volume="1" data-track-index="30"></audio>
+<audio id="bgm" src="assets/music.wav" data-start="0" data-duration="136.3" data-volume="0.2" data-fade-in="1.5" data-fade-out="4" data-track-index="31"></audio>
+</div>
+<script>
+const tl = gsap.timeline({ paused: true });
+tl.fromTo("#h0",{opacity:0,y:30,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},0.5);
+tl.to("#h0",{opacity:0,duration:0.35,ease:"power2.in"},4.04);
+tl.fromTo("#h1",{opacity:0,y:30,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},4.49);
+tl.to("#h1",{opacity:0,duration:0.35,ease:"power2.in"},6.77);
+tl.fromTo("#h2",{opacity:0,y:30,x:-30},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},7.17);
+tl.fromTo("#vt",{opacity:0},{opacity:1,duration:0.6,ease:"power2.out"},7.47);
+tl.fromTo("#b1",{x:0,y:0,rotation:8},{x:20,y:30,rotation:-8,duration:11.75,ease:"sine.inOut"},11.55);
+tl.fromTo("#b2",{x:0,y:0,rotation:-7},{x:-24,y:26,rotation:7,duration:11.75,ease:"sine.inOut"},11.55);
+tl.fromTo("#b3",{x:0,y:0,rotation:-6},{x:28,y:-30,rotation:6,duration:11.75,ease:"sine.inOut"},11.55);
+tl.fromTo("#b4",{x:0,y:0,rotation:7},{x:-22,y:-24,rotation:-7,duration:11.75,ease:"sine.inOut"},11.55);
+tl.fromTo("#b5",{x:0,y:0,rotation:-9},{x:16,y:22,rotation:9,duration:11.75,ease:"sine.inOut"},11.55);
+tl.fromTo("#bchip",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},11.85);
+tl.fromTo("#brand",{opacity:0,y:50,x:0},{opacity:1,y:0,x:0,duration:0.8,ease:"power3.out"},12.05);
+tl.fromTo("#tag",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},12.65);
+tl.fromTo("#brow",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},15.88);
+tl.fromTo("#built",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},19.99);
+tl.to("#btitle",{opacity:0,duration:0.45,ease:"power2.in"},22.8);
+tl.to("#bbooks",{opacity:0,duration:0.45,ease:"power2.in"},22.8);
+tl.to("#bbg",{opacity:0,duration:0.4,ease:"power2.in"},22.9);
+tl.fromTo("#cchip",{opacity:0,y:0,x:-30},{opacity:1,y:0,x:0,duration:0.5,ease:"power3.out"},24.8);
+tl.to("#cchip",{opacity:0,duration:0.35,ease:"power2.in"},49.25);
+tl.fromTo("#clapse",{opacity:0,y:0,x:30},{opacity:1,y:0,x:0,duration:0.4,ease:"power3.out"},29.22);
+tl.to("#clapse",{opacity:0,duration:0.3,ease:"power2.in"},32.91);
+tl.fromTo("#clive",{opacity:0,y:0,x:30},{opacity:1,y:0,x:0,duration:0.4,ease:"power3.out"},33.81);
+tl.to("#clive",{opacity:0,duration:0.4,ease:"power2.in"},39.71);
+tl.fromTo("#dt1",{opacity:0},{opacity:1,duration:0.5,ease:"power2.out"},50.05);
+tl.fromTo("#dt1l",{opacity:0},{opacity:1,duration:0.4,ease:"power2.out"},50.25);
+tl.to("#dt1",{opacity:0,duration:0.4,ease:"power2.in"},52.09);
+tl.to("#dt1l",{opacity:0,duration:0.3,ease:"power2.in"},52.09);
+tl.fromTo("#dt2",{opacity:0},{opacity:1,duration:0.5,ease:"power2.out"},50.27);
+tl.fromTo("#dt2l",{opacity:0},{opacity:1,duration:0.4,ease:"power2.out"},50.47);
+tl.to("#dt2",{opacity:0,duration:0.4,ease:"power2.in"},52.09);
+tl.to("#dt2l",{opacity:0,duration:0.3,ease:"power2.in"},52.09);
+tl.fromTo("#dt3",{opacity:0},{opacity:1,duration:0.5,ease:"power2.out"},50.49);
+tl.fromTo("#dt3l",{opacity:0},{opacity:1,duration:0.4,ease:"power2.out"},50.69);
+tl.to("#dt3",{opacity:0,duration:0.4,ease:"power2.in"},52.09);
+tl.to("#dt3l",{opacity:0,duration:0.3,ease:"power2.in"},52.09);
+tl.fromTo("#dt4",{opacity:0},{opacity:1,duration:0.5,ease:"power2.out"},50.71);
+tl.fromTo("#dt4l",{opacity:0},{opacity:1,duration:0.4,ease:"power2.out"},50.91);
+tl.to("#dt4",{opacity:0,duration:0.4,ease:"power2.in"},52.09);
+tl.to("#dt4l",{opacity:0,duration:0.3,ease:"power2.in"},52.09);
+tl.fromTo("#df1",{opacity:0},{opacity:1,duration:0.35,ease:"power2.out"},52.49);
+tl.fromTo("#df1c",{opacity:0,y:0,x:-30},{opacity:1,y:0,x:0,duration:0.45,ease:"power3.out"},52.64);
+tl.to("#df1c",{opacity:0,duration:0.3,ease:"power2.in"},54.67);
+tl.fromTo("#df2",{opacity:0},{opacity:1,duration:0.35,ease:"power2.out"},55.22);
+tl.fromTo("#df2c",{opacity:0,y:0,x:-30},{opacity:1,y:0,x:0,duration:0.45,ease:"power3.out"},55.37);
+tl.to("#df2c",{opacity:0,duration:0.3,ease:"power2.in"},58.12);
+tl.fromTo("#df3",{opacity:0},{opacity:1,duration:0.35,ease:"power2.out"},58.67);
+tl.fromTo("#df3c",{opacity:0,y:0,x:-30},{opacity:1,y:0,x:0,duration:0.45,ease:"power3.out"},58.82);
+tl.to("#df3c",{opacity:0,duration:0.3,ease:"power2.in"},62.54);
+tl.fromTo("#df4",{opacity:0},{opacity:1,duration:0.35,ease:"power2.out"},63.09);
+tl.fromTo("#df4c",{opacity:0,y:0,x:-30},{opacity:1,y:0,x:0,duration:0.45,ease:"power3.out"},63.24);
+tl.to("#df4c",{opacity:0,duration:0.3,ease:"power2.in"},67.31);
+tl.to("#dbg",{opacity:0,duration:0.4,ease:"power2.in"},67.41);
+tl.fromTo("#erail",{opacity:0,y:-20,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},68.16);
+tl.to("#rp0",{backgroundColor:"#3b82f6",color:"#ffffff",duration:0.4},69.64);
+tl.to("#rp0",{backgroundColor:"rgba(255,255,255,0.75)",color:"#1d4ed8",duration:0.4},79.55);
+tl.to("#rp1",{backgroundColor:"#3b82f6",color:"#ffffff",duration:0.4},79.55);
+tl.to("#rp1",{backgroundColor:"rgba(255,255,255,0.75)",color:"#1d4ed8",duration:0.4},83.6);
+tl.to("#rp2",{backgroundColor:"#3b82f6",color:"#ffffff",duration:0.4},83.6);
+tl.to("#rp2",{backgroundColor:"rgba(255,255,255,0.75)",color:"#1d4ed8",duration:0.4},96.72);
+tl.to("#rp3",{backgroundColor:"#3b82f6",color:"#ffffff",duration:0.4},96.72);
+tl.fromTo("#n1_0",{opacity:0,y:30,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},70.28);
+tl.fromTo("#a1_0",{opacity:0,y:0,x:-12},{opacity:1,y:0,x:0,duration:0.4,ease:"power3.out"},70.78);
+tl.fromTo("#n1_1",{opacity:0,y:30,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},71.86);
+tl.fromTo("#a1_1",{opacity:0,y:0,x:-12},{opacity:1,y:0,x:0,duration:0.4,ease:"power3.out"},72.36);
+tl.fromTo("#n1_2",{opacity:0,y:30,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},73.87);
+tl.fromTo("#a1_2",{opacity:0,y:0,x:-12},{opacity:1,y:0,x:0,duration:0.4,ease:"power3.out"},74.37);
+tl.fromTo("#n1_3",{opacity:0,y:30,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},76.61);
+tl.fromTo("#n1note",{opacity:0,y:16,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},78.26);
+tl.to("#ep1",{opacity:0,duration:0.4,ease:"power2.in"},79.1);
+var c22={v:0},c26={v:0};tl.to(c22,{v:22,duration:0.9,ease:"power2.out",onUpdate:function(){document.getElementById("n1v0").textContent=Math.round(c22.v)}},70.48);tl.to(c26,{v:2647,duration:1.3,ease:"power2.out",onUpdate:function(){document.getElementById("n1v1").textContent=Math.round(c26.v).toLocaleString("en-US")}},72.06);
+tl.fromTo("#ep2 .mw",{opacity:0,y:30,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},79.65);
+tl.fromTo("#ep2 .codewin",{opacity:0,y:30,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},79.85);
+tl.fromTo("#cl0",{opacity:0,y:10,x:0},{opacity:1,y:0,x:0,duration:0.35,ease:"power3.out"},80.45);
+tl.fromTo("#cl1",{opacity:0,y:10,x:0},{opacity:1,y:0,x:0,duration:0.35,ease:"power3.out"},80.84);
+tl.fromTo("#cl2",{opacity:0,y:10,x:0},{opacity:1,y:0,x:0,duration:0.35,ease:"power3.out"},81.24);
+tl.fromTo("#cl3",{opacity:0,y:10,x:0},{opacity:1,y:0,x:0,duration:0.35,ease:"power3.out"},81.63);
+tl.fromTo("#cl4",{opacity:0,y:10,x:0},{opacity:1,y:0,x:0,duration:0.35,ease:"power3.out"},82.02);
+tl.fromTo("#cl5",{opacity:0,y:10,x:0},{opacity:1,y:0,x:0,duration:0.35,ease:"power3.out"},82.41);
+tl.to("#ep2",{opacity:0,duration:0.4,ease:"power2.in"},83.15);
+tl.fromTo("#ck0",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.55,ease:"power3.out"},86.27);
+tl.fromTo("#ck1",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.55,ease:"power3.out"},86.99);
+tl.fromTo("#ck2",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.55,ease:"power3.out"},88.34);
+tl.fromTo("#ck3",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.55,ease:"power3.out"},94.07);
+tl.set("#ci2",{backgroundColor:"#f59e0b"},67.86);tl.set("#ci2 .gw",{opacity:1},67.86);tl.set("#ci2 .gx",{opacity:0},67.86);tl.set("#ci2 .gv",{opacity:0},67.86);
+tl.to("#ci2",{backgroundColor:"#f43f5e",duration:0.3},93.28);tl.to("#ci2 .gw",{opacity:0,duration:0.2},93.28);tl.to("#ci2 .gx",{opacity:1,duration:0.2},93.38);
+tl.to("#ci2",{backgroundColor:"#10b981",duration:0.3},95.8);tl.to("#ci2 .gx",{opacity:0,duration:0.2},95.8);tl.to("#ci2 .gv",{opacity:1,duration:0.2},95.9);
+tl.fromTo("#valid",{opacity:0,y:16,x:0},{opacity:1,y:0,x:0,duration:0.5,ease:"power3.out"},96.1);
+tl.to("#ep3",{opacity:0,duration:0.4,ease:"power2.in"},96.27);
+tl.fromTo("#ep4 .jt",{opacity:0,y:16,x:0},{opacity:1,y:0,x:0,duration:0.5,ease:"power3.out"},96.92);
+tl.fromTo("#jr0",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},98.97);
+tl.fromTo("#jr1",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},101.47);
+tl.to("#ep4",{opacity:0,duration:0.4,ease:"power2.in"},103.39);
+tl.to("#erail",{opacity:0,duration:0.4,ease:"power2.in"},103.99);
+tl.to("#ebg",{opacity:0,duration:0.4,ease:"power2.in"},104.04);
+tl.fromTo("#fc1",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.5,ease:"power3.out"},104.84);
+tl.to("#fc1",{opacity:0,duration:0.3,ease:"power2.in"},107.44);
+tl.fromTo("#fc2",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.5,ease:"power3.out"},108.04);
+tl.to("#fc2",{opacity:0,duration:0.3,ease:"power2.in"},112.94);
+tl.fromTo("#fc4",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.5,ease:"power3.out"},116.02);
+tl.to("#fc4",{opacity:0,duration:0.3,ease:"power2.in"},125.92);
+tl.fromTo("#fc3",{opacity:0,y:0,x:30},{opacity:1,y:0,x:0,duration:0.4,ease:"power3.out"},120.24);
+tl.to("#fc3",{opacity:0,duration:0.3,ease:"power2.in"},123.64);
+tl.fromTo("#g1",{x:0,y:0,rotation:8},{x:20,y:30,rotation:-8,duration:9.47,ease:"sine.inOut"},126.72);
+tl.fromTo("#g2",{x:0,y:0,rotation:-7},{x:-24,y:26,rotation:7,duration:9.47,ease:"sine.inOut"},126.72);
+tl.fromTo("#g3",{x:0,y:0,rotation:-6},{x:28,y:-30,rotation:6,duration:9.47,ease:"sine.inOut"},126.72);
+tl.fromTo("#g4",{x:0,y:0,rotation:7},{x:-22,y:-24,rotation:-7,duration:9.47,ease:"sine.inOut"},126.72);
+tl.fromTo("#g5",{x:0,y:0,rotation:-9},{x:16,y:22,rotation:9,duration:9.47,ease:"sine.inOut"},126.72);
+tl.fromTo("#gbg",{opacity:0},{opacity:1,duration:0.5,ease:"power2.out"},126.72);
+tl.fromTo("#gbrand",{opacity:0,y:40,x:0},{opacity:1,y:0,x:0,duration:0.8,ease:"power3.out"},127.02);
+tl.fromTo("#gline",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.7,ease:"power3.out"},127.72);
+tl.fromTo("#gurl",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},129.32);
+tl.fromTo("#grow",{opacity:0,y:24,x:0},{opacity:1,y:0,x:0,duration:0.6,ease:"power3.out"},130.12);
+window.__timelines["main"] = tl;
+tl.seek(0);
+</script></body></html>

@@ -100,14 +100,15 @@ export const SimulationCard: React.FC<{ match: Match; query: string; index?: num
     return () => ctrl.abort();
   }, [match.chunkId, query, attempt]);
 
+  const hasSim = (status === "streaming" || status === "ready") && !!code;
   return (
     <m.article
       initial={{ opacity: 0, y: 26, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.7, delay: 0.1, ease }}
-      className="glass rounded-[28px] p-4 sm:p-6"
+      className="glass rounded-[28px] p-4 sm:p-6 flex flex-col"
     >
-      <header className="flex flex-wrap items-start justify-between gap-3 mb-5">
+      <header className="flex flex-wrap items-start justify-between gap-3 mb-5" style={{ order: hasSim ? 3 : 0, marginTop: hasSim ? 20 : 0 }}>
         <div>
           <div className="chip mb-2">
             {index ? `[${index}] ` : ""}
@@ -165,7 +166,7 @@ export const SimulationCard: React.FC<{ match: Match; query: string; index?: num
       )}
       {(status === "streaming" || status === "ready") && code && (
         <ThemeProvider mode="light" lightTheme={iceTheme}>
-          <div className="openui-app-container">
+          <div className="openui-app-container" style={{ order: 1 }}>
             <Renderer
               key={status === "ready" ? "final" : "stream"}
               response={code}
