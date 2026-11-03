@@ -3,6 +3,7 @@ import { pool } from "@/lib/db";
 import { MUSE_MODEL, museComplete, museStream } from "@/lib/muse";
 import { SIM_SYSTEM_PROMPT, buildSimUserPrompt, SimContext } from "@/lib/openui/sim-prompt";
 import { validateOpenUi } from "@/lib/openui/validate";
+import { findCachedSimulation, storeSimulation } from "@/lib/sim-cache";
 
 export const runtime = "nodejs";
 export const maxDuration = 300;
@@ -11,7 +12,7 @@ const clean = (t: string) => t.replace(/^\s*```[a-zA-Z]*\n?/, "").replace(/\n?``
 
 /**
  * NDJSON events: {t:"cached",code} | {t:"delta",v} | {t:"reset"} | {t:"final",code} | {t:"stored",id} | {t:"error",message}
- * If a simulation is already stored for the chunk, it is returned as-is (no LLM call).
+ * If a simulation was already stored for this same topic, it is returned as-is (no generation).
  */
 export async function POST(req: NextRequest) {
   const { chunkId, query = "" } = await req.json();
@@ -21,12 +22,10 @@ export async function POST(req: NextRequest) {
     async start(controller) {
       const send = (o: object) => controller.enqueue(enc.encode(JSON.stringify(o) + "\n"));
       try {
-        const existing = await pool.query(
-          "SELECT openui_code FROM simulations WHERE chunk_id = $1",
-          [chunkId]
-        );
-        if (existing.rows[0]) {
-          send({ t: "cached", code: existing.rows[0].openui_code });
+        // Reuse only a simulation made for the SAME topic (not merely the same section).
+        const cache = await findCachedSimulation(chunkId, query);
+        if (cache.code) {
+          send({ t: "cached", code: cache.code });
           return;
         }
 
@@ -72,14 +71,9 @@ export async function POST(req: NextRequest) {
         }
 
         send({ t: "final", code });
-        // Store the OpenUI Lang together with the chunk's vector so it can be reused (and searched) later.
-        const ins = await pool.query(
-          `INSERT INTO simulations (chunk_id, title, openui_code, embedding, model)
-           SELECT id, title, $2, embedding, $3 FROM chunks WHERE id = $1
-           ON CONFLICT (chunk_id) DO NOTHING RETURNING id`,
-          [chunkId, code, MUSE_MODEL()]
-        );
-        send({ t: "stored", id: ins.rows[0]?.id ?? null });
+        // Store the OpenUI Lang with the search it was made for (and that search's vector) so only the same topic reuses it.
+        const id = await storeSimulation(chunkId, query, cache.embedding, code, MUSE_MODEL());
+        send({ t: "stored", id });
       } catch (e) {
         send({ t: "error", message: (e as Error).message });
       } finally {

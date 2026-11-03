@@ -22,8 +22,10 @@ Embeddings are separate and come from EmbeddingGemma 2 (see below).
 3. **Search (RAG)** – the query is embedded with the same model (`rag/embed_server.py`) and the nearest chunks are
    fetched by cosine distance.
 4. **Summary** – **Muse Wonder 1.0** writes a short, cited summary from the best-matching chunk.
-5. **Simulation** – if a simulation already exists for that chunk in the `simulations` table, its stored OpenUI Lang is
-   rendered directly. Otherwise **Muse Wonder 1.0** writes a new OpenUI Lang page (using the chunk's figure descriptions, or the chunk text
+5. **Simulation** – simulations are stored per *topic* (the search they were made for), not per section, because one section
+   can cover several experiments or models. A stored one is reused only if it is the same topic: near-identical searches reuse it
+   directly and borderline ones are settled by a tiny Muse same/different check. Otherwise it is generated and stored with the
+   search's vector. If one is reused, its stored OpenUI Lang is rendered directly. Otherwise **Muse Wonder 1.0** writes a new OpenUI Lang page (using the chunk's figure descriptions, or the chunk text
    plus outside knowledge when there is no figure), it is validated, rendered, and stored next to the chunk's vector.
    The interactive part is a `SimCanvas` component: a short script run in a sandboxed iframe. Before a simulation is stored it is
    validated and dry-run on the server (syntax, runtime errors, NaN, overlapping text) and Muse repairs it if needed.
@@ -33,7 +35,8 @@ Embeddings are separate and come from EmbeddingGemma 2 (see below).
 Every simulation shares one light, glassy look (white + ice blue). The script API (`slider`, `choice`, `formula`, `ball`, `box`,
 `label`, `arrow`, `axes`/`plot`, `chart`, `timeline`, ...) is implemented in `src/lib/openui/sim-harness.ts`. Optional libraries are
 self-hosted (`scripts/copy-vendor.mjs` copies them to `public/vendor`) and inlined into each sandboxed page only when used:
-**KaTeX** for formulas, **Matter.js** for collisions/friction, **Leaflet** for real maps. Charts, graphs and animation are plain
+**KaTeX** for formulas, **Matter.js** for collisions/friction, **Leaflet** for real maps. Maps of Bangladesh use a real border
+(Natural Earth, public domain) with regions, rivers and cities via the `bd*` helpers, so the model never draws a country by hand. Charts, graphs and animation are plain
 Canvas with `requestAnimationFrame`. The site itself uses Motion for transitions and Inter + Noto Sans Bengali for text.
 
 ## Run it

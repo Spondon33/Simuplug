@@ -61,9 +61,17 @@ export async function dryRunSim(script: string): Promise<DryRun> {
     button: noop, readout: noop, formula: noop, restart: noop, onDrag: noop,
     loop: (f: (t: number, dt: number) => void) => { loopFn = f; },
     clear: () => { items = []; },
-    line: (...a: unknown[]) => finite("line", a), circle: (...a: unknown[]) => finite("circle", a), ball: (...a: unknown[]) => finite("ball", a),
+    line: (...a: unknown[]) => {
+      finite("line", a);
+      if (a[6] !== undefined && a[6] !== null && !Array.isArray(a[6])) bad ??= "line() dash (7th argument) must be an array like [5,5]";
+    }, circle: (...a: unknown[]) => finite("circle", a), ball: (...a: unknown[]) => finite("ball", a),
     rect: (...a: unknown[]) => finite("rect", a), arrow: (...a: unknown[]) => finite("arrow", a), spring: (...a: unknown[]) => finite("spring", a),
-    poly: noop, ground: (...a: unknown[]) => finite("ground", a),
+    poly: (pts: Any[]) => {
+      if (!Array.isArray(pts) || pts.some((q: Any) => !(Array.isArray(q) ? [q[0], q[1]] : [q?.x, q?.y]).every((v: unknown) => typeof v === "number" && Number.isFinite(v)))) bad ??= "poly() needs an array of [x, y] points with finite numbers";
+    },
+    bdMap: () => (lat: number, lng: number) => [lng * 5, lat * 5],
+    bdOutline: noop, bdRegion: noop, bdRiver: noop, bdRivers: noop, bdCity: () => [10, 10], bdPoint: (pj: (a: number, b: number) => number[], lat: number, lng: number) => pj(lat, lng),
+    lens: (...a: unknown[]) => finite("lens", a), ground: (...a: unknown[]) => finite("ground", a),
     text,
     box: (x: number, y: number, w: number, h: number, _c?: string, label?: string) => {
       finite("box", [x, y, w, h]);
@@ -111,7 +119,7 @@ export async function dryRunSim(script: string): Promise<DryRun> {
               const oh = Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0);
               if (ow > 6 && oh > 4) {
                 const area = ow * oh, small = Math.min((a.x1 - a.x0) * (a.y1 - a.y0), (b.x1 - b.x0) * (b.y1 - b.y0));
-                if (area > 0.25 * small) {
+                if (area > 0.12 * small) {
                   const m = `text "${a.s.slice(0, 32)}" overlaps text "${b.s.slice(0, 32)}" near (${Math.round(Math.max(a.x0, b.x0))}, ${Math.round(Math.max(a.y0, b.y0))})`;
                   if (!seen.has(m)) { seen.add(m); layout.push(m); }
                 }

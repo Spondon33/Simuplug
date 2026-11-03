@@ -84,13 +84,12 @@ export default function Home() {
               </button>
             </m.form>
 
-            {!searching && (
-              <m.div {...rise(0.34)} className="mt-6">
-                <Link href="/reader" className="glass glass-hover inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold" style={{ color: "var(--blue-deep)" }}>
-                  <FileText className="w-4 h-4" /> Upload a book PDF and simulate what you highlight
-                </Link>
-              </m.div>
-            )}
+            {/* always visible, also while a simulation is on screen */}
+            <m.div {...rise(0.34)} className={searching ? "mt-4" : "mt-6"}>
+              <Link href="/reader" className="glass glass-hover inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold" style={{ color: "var(--blue-deep)" }}>
+                <FileText className="w-4 h-4" /> Upload a book PDF and simulate what you highlight
+              </Link>
+            </m.div>
           </section>
 
           <ResultView query={query} onPickRelated={run} />

@@ -1,3 +1,5 @@
+import { BD_GEO } from "./geo-bd";
+
 /**
  * Sandbox harness for SimCanvas (v2). The model writes a short script against this API; the harness owns the
  * look (light glass design language), the canvas, controls, formulas, charts, timelines, physics and maps.
@@ -75,7 +77,7 @@ function loop(fn){_fn=fn}
 /* ---------- drawing ---------- */
 function _ok(a){for(var i=0;i<a.length;i++){if(typeof a[i]==='number'&&!isFinite(a[i]))return false}return true}
 function clear(grid){_lb=[];var g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#ffffff');g.addColorStop(1,'#e9f5ff');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);if(grid!==false){ctx.fillStyle='rgba(59,130,246,.10)';for(var x=24;x<W;x+=36)for(var y=24;y<H;y+=36)ctx.fillRect(x,y,1.6,1.6)}ctx.shadowColor='transparent';ctx.shadowBlur=0}
-function line(x1,y1,x2,y2,c,w,dash){if(!_ok(arguments))return;ctx.save();ctx.strokeStyle=c||C.ink;ctx.lineWidth=w||2;ctx.lineCap='round';if(dash)ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore()}
+function line(x1,y1,x2,y2,c,w,dash){if(!_ok(arguments))return;ctx.save();ctx.strokeStyle=c||C.ink;ctx.lineWidth=w||2;ctx.lineCap='round';if(dash)ctx.setLineDash(Array.isArray(dash)?dash:(typeof dash==='number'?[dash,dash]:[6,6]));ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore()}
 function circle(x,y,r,c,fill){if(!_ok(arguments))return;ctx.beginPath();ctx.arc(x,y,Math.max(0,r),0,6.2832);if(fill===false){ctx.strokeStyle=c||C.ink;ctx.lineWidth=2;ctx.stroke()}else{ctx.fillStyle=c||C.blue;ctx.fill()}}
 function ball(x,y,r,c){if(!_ok(arguments))return;c=c||C.blue;ctx.save();ctx.shadowColor='rgba(15,39,66,.28)';ctx.shadowBlur=r*.9;ctx.shadowOffsetY=r*.35;var g=ctx.createRadialGradient(x-r*.35,y-r*.4,r*.1,x,y,r);g.addColorStop(0,'#ffffff');g.addColorStop(.25,tint(c,.55));g.addColorStop(1,c);ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,Math.max(0,r),0,6.2832);ctx.fill();ctx.restore()}
 function rect(x,y,w,h,c,fill){if(!_ok(arguments))return;if(fill===false){ctx.strokeStyle=c||C.ink;ctx.lineWidth=2;ctx.strokeRect(x,y,w,h)}else{ctx.fillStyle=c||C.slate;ctx.fillRect(x,y,w,h)}}
@@ -86,7 +88,8 @@ var _lb=[];
 function label(s,x,y,c){if(!_ok(arguments))return;ctx.save();ctx.font="600 12px InterV,NotoBn,system-ui,sans-serif";var w=ctx.measureText(String(s)).width+20,h=26,offs=[0,-30,30,-60,60,-90,90,-120,120],px=clamp(x,w/2+8,W-w/2-8),py=clamp(y,16,H-16);for(var k=0;k<offs.length;k++){var ty=clamp(y+offs[k],16,H-16),ok=true;for(var j=0;j<_lb.length;j++){var r=_lb[j];if(Math.abs(px-r[0])<(w+r[2])/2+4&&Math.abs(ty-r[1])<h+4){ok=false;break}}if(ok){py=ty;break}}_lb.push([px,py,w]);ctx.shadowColor='rgba(59,130,246,.25)';ctx.shadowBlur=10;ctx.shadowOffsetY=3;ctx.fillStyle='rgba(255,255,255,.92)';_rr(px-w/2,py-13,w,h,13);ctx.fill();ctx.shadowColor='transparent';ctx.strokeStyle=tint(c||C.blue,.5);ctx.lineWidth=1.2;ctx.stroke();ctx.fillStyle=c||C.ink;ctx.textAlign='center';ctx.fillText(String(s),px,py+4);ctx.restore()}
 function arrow(x1,y1,x2,y2,c,lab){if(!_ok(arguments))return;c=c||C.blue;var a=Math.atan2(y2-y1,x2-x1);line(x1,y1,x2-7*Math.cos(a),y2-7*Math.sin(a),c,3);ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-12*Math.cos(a-.42),y2-12*Math.sin(a-.42));ctx.lineTo(x2-12*Math.cos(a+.42),y2-12*Math.sin(a+.42));ctx.closePath();ctx.fill();if(lab)label(lab,(x1+x2)/2-Math.sin(a)*16,(y1+y2)/2+Math.cos(a)*16,c)}
 function spring(x1,y1,x2,y2,coils,c){if(!_ok(arguments))return;var n=coils||8,dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L,nx=-uy,ny=ux;ctx.save();ctx.strokeStyle=c||C.slate;ctx.lineWidth=2.4;ctx.lineJoin='round';ctx.beginPath();ctx.moveTo(x1,y1);for(var i=0;i<=n*2;i++){var t=(i+.5)/(n*2+1),a=(i==0||i==n*2)?0:(i%2?1:-1)*9;ctx.lineTo(x1+dx*t+nx*a,y1+dy*t+ny*a)}ctx.lineTo(x2,y2);ctx.stroke();ctx.restore()}
-function poly(pts,c,fill){ctx.beginPath();pts.forEach(function(p,i){i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])});ctx.closePath();if(fill===false){ctx.strokeStyle=c||C.ink;ctx.lineWidth=2;ctx.stroke()}else{ctx.fillStyle=c||C.blue;ctx.fill()}}
+function lens(cx,cy,h,kind,c){if(!_ok(arguments))return;c=c||C.sky;ctx.save();ctx.shadowColor='rgba(59,130,246,.3)';ctx.shadowBlur=16;ctx.shadowOffsetY=4;var g=ctx.createLinearGradient(cx-16,0,cx+16,0);g.addColorStop(0,tint(c,.35));g.addColorStop(.5,tint(c,.8));g.addColorStop(1,tint(c,.35));ctx.fillStyle=g;ctx.beginPath();if(kind==='concave'){ctx.moveTo(cx-14,cy-h);ctx.lineTo(cx+14,cy-h);ctx.quadraticCurveTo(cx-6,cy,cx+14,cy+h);ctx.lineTo(cx-14,cy+h);ctx.quadraticCurveTo(cx+6,cy,cx-14,cy-h)}else{ctx.moveTo(cx,cy-h);ctx.quadraticCurveTo(cx+30,cy,cx,cy+h);ctx.quadraticCurveTo(cx-30,cy,cx,cy-h)}ctx.closePath();ctx.fill();ctx.shadowColor='transparent';ctx.strokeStyle=c;ctx.lineWidth=2;ctx.stroke();ctx.restore()}
+function poly(pts,c,fill){pts=pts.map(function(p){return Array.isArray(p)?p:[p.x,p.y]});for(var q=0;q<pts.length;q++){if(!isFinite(pts[q][0]+pts[q][1]))return}ctx.beginPath();pts.forEach(function(p,i){i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1])});ctx.closePath();if(fill===false){ctx.strokeStyle=c||C.ink;ctx.lineWidth=2;ctx.stroke()}else{ctx.fillStyle=c||C.blue;ctx.fill()}}
 function ground(y,c){if(!_ok(arguments))return;var g=ctx.createLinearGradient(0,y,0,H);g.addColorStop(0,tint(c||C.sky,.28));g.addColorStop(1,tint(c||C.sky,.05));ctx.fillStyle=g;ctx.fillRect(0,y,W,H-y);line(0,y,W,y,c||C.sky,3)}
 function wrapText(s,x,y,maxW,lh,c,size){if(!_ok(arguments))return;ctx.font='500 '+(size||13)+"px InterV,NotoBn,system-ui,sans-serif";var words=String(s).split(' '),ln='',yy=y;ctx.fillStyle=c||C.ink;ctx.textAlign='left';words.forEach(function(w){var t=ln?ln+' '+w:w;if(ctx.measureText(t).width>maxW&&ln){ctx.fillText(ln,x,yy);ln=w;yy+=lh}else ln=t});if(ln)ctx.fillText(ln,x,yy);return yy+lh}
 function _ticks(a,b,n){var span=b-a||1,raw=span/(n||5),mag=Math.pow(10,Math.floor(Math.log10(raw))),r=raw/mag,st=(r<1.5?1:r<3?2:r<7?5:10)*mag,out=[];for(var v=Math.ceil(a/st)*st;v<=b+st*1e-6;v+=st)out.push(+v.toFixed(10));return out}
@@ -102,6 +105,7 @@ var cx=40,cy=py+60,cw=W-80,chh=H-cy-24;ctx.save();ctx.shadowColor='rgba(59,130,2
 function drawBodies(eng,colors){if(typeof Matter==='undefined')return;Matter.Composite.allBodies(eng.world).forEach(function(b,i){var col=(colors&&colors[b.label])||(b.isStatic?'#cbd5e1':PAL[i%PAL.length]);ctx.save();if(!b.isStatic){ctx.shadowColor='rgba(15,39,66,.22)';ctx.shadowBlur=12;ctx.shadowOffsetY=4}var v=b.vertices;if(b.circleRadius){var g=ctx.createRadialGradient(b.position.x-b.circleRadius*.3,b.position.y-b.circleRadius*.4,1,b.position.x,b.position.y,b.circleRadius);g.addColorStop(0,'#fff');g.addColorStop(.3,tint(col,.6));g.addColorStop(1,col);ctx.fillStyle=g;ctx.beginPath();ctx.arc(b.position.x,b.position.y,b.circleRadius,0,6.2832);ctx.fill()}else{var gg=ctx.createLinearGradient(0,b.bounds.min.y,0,b.bounds.max.y);gg.addColorStop(0,tint(col,.7));gg.addColorStop(1,col);ctx.fillStyle=gg;ctx.beginPath();ctx.moveTo(v[0].x,v[0].y);for(var j=1;j<v.length;j++)ctx.lineTo(v[j].x,v[j].y);ctx.closePath();ctx.fill()}ctx.restore()})}
 function stepEngine(eng,dt){var ms=Math.min(100,(dt||.016)*1000);while(ms>0){var s=Math.min(16.667,ms);Matter.Engine.update(eng,s);ms-=s}}
 function mapView(lat,lng,zoom){var mb=document.getElementById('mapbox');mb.style.display='block';cv.style.display='none';var m=L.map(mb,{zoomControl:true,attributionControl:true}).setView([lat,lng],zoom||5);L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{attribution:'&copy; OpenStreetMap contributors &copy; CARTO',maxZoom:18}).addTo(m);return m}
+['clear','line','circle','ball','rect','box','text','label','arrow','spring','poly','lens','ground','wrapText','axes','plot','chart','timeline','drawBodies'].forEach(function(n){var f=window[n];if(typeof f!=='function')return;window[n]=function(){try{return f.apply(this,arguments)}catch(e){if(!window.__warned){window.__warned=1;try{parent.postMessage({simWarn:n+': '+(e&&e.message)},'*')}catch(x){}}}}});
 /* ---------- pointer ---------- */
 function _pt(e){var r=cv.getBoundingClientRect();M.x=(e.clientX-r.left)/r.width*W;M.y=(e.clientY-r.top)/r.height*H}
 cv.addEventListener('pointerdown',function(e){M.down=true;_pt(e);try{cv.setPointerCapture(e.pointerId)}catch(x){}if(_drag)_drag(M.x,M.y,'down')});
@@ -116,10 +120,25 @@ function _renderFormula(){if(!_formula)return;var s=typeof _formula==='function'
 function _tick(now){var dt=Math.min(.05,(now-_last)/1000);_last=now;if(_first){_first=false;try{parent.postMessage({simFrame:1},'*')}catch(e){}}if(!_paused)_tp+=dt;if(_fn){try{ctx.save();_fn(_tp,_paused?0:dt);ctx.restore()}catch(e){_fn=null;_err(e)}}_outs.forEach(function(o){try{var v=o[1]();o[0].textContent=typeof v==='number'?(Math.abs(v)>=100?v.toFixed(0):v.toFixed(2)):v}catch(e){}});try{_renderFormula()}catch(e){}requestAnimationFrame(_tick)}
 `;
 
+
+const HARNESS_BD = String.raw`
+var _BD=__BD_DATA__;
+function bdMap(box){var b=_BD.bbox,k=Math.cos((b[1]+b[3])/2*Math.PI/180),w=(b[2]-b[0])*k,h=b[3]-b[1],sc=Math.min((box[2]-box[0])/w,(box[3]-box[1])/h),ox=box[0]+((box[2]-box[0])-w*sc)/2,oy=box[1]+((box[3]-box[1])-h*sc)/2;return function(lat,lng){return [ox+(lng-b[0])*k*sc,oy+(b[3]-lat)*sc]}}
+function _bdPath(pj){ctx.beginPath();_BD.outline.forEach(function(r){r.forEach(function(p,i){var q=pj(p[1],p[0]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.closePath()})}
+function bdOutline(pj,fill,stroke){_bdPath(pj);ctx.save();ctx.shadowColor='rgba(59,130,246,.3)';ctx.shadowBlur=18;ctx.shadowOffsetY=6;ctx.fillStyle=fill||'#dff1ff';ctx.fill();ctx.restore();ctx.strokeStyle=stroke||C.blue;ctx.lineWidth=2;ctx.lineJoin='round';ctx.stroke()}
+function bdRegion(pj,name,color,alpha){var r=_BD.regions[name];if(!r)return;ctx.save();_bdPath(pj);ctx.clip();ctx.beginPath();r.forEach(function(p,i){var q=pj(p[0],p[1]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.closePath();ctx.fillStyle=tint(color||C.teal,alpha==null?.55:alpha);ctx.fill();ctx.restore()}
+function bdRiver(pj,name,color,w){var r=_BD.rivers[name];if(!r)return;ctx.save();_bdPath(pj);ctx.clip();ctx.strokeStyle=color||C.sky;ctx.lineWidth=w||3;ctx.lineCap='round';ctx.lineJoin='round';ctx.beginPath();r.forEach(function(p,i){var q=pj(p[0],p[1]);i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1])});ctx.stroke();ctx.restore()}
+function bdRivers(pj,color,w){Object.keys(_BD.rivers).forEach(function(n){bdRiver(pj,n,color,w)})}
+function bdCity(pj,name,color){var c=_BD.cities[name];if(!c)return null;var q=pj(c[0],c[1]);circle(q[0],q[1],5,color||C.rose);circle(q[0],q[1],5,'#fff',false);label(name,q[0]+4,q[1]-16,color||C.ink);return q}
+function bdPoint(pj,lat,lng){return pj(lat,lng)}
+['bdOutline','bdRegion','bdRiver','bdRivers','bdCity'].forEach(function(n){var f=window[n];window[n]=function(){try{return f.apply(this,arguments)}catch(e){}}});
+`;
+
 export interface SimNeeds {
   katex: boolean;
   matter: boolean;
   leaflet: boolean;
+  bd: boolean; // Bangladesh geography helpers (bdMap, bdOutline, ...)
 }
 
 /** Which optional libraries a script uses. */
@@ -128,6 +147,7 @@ export function detectNeeds(script: string): SimNeeds {
     katex: /\bformula\s*\(/.test(script),
     matter: /\bMatter\b|\bdrawBodies\b|\bstepEngine\b/.test(script),
     leaflet: /\bmapView\b/.test(script),
+    bd: /\bbd[A-Z]\w*\s*\(/.test(script),
   };
 }
 
@@ -146,8 +166,9 @@ const inlineJs = (js: string) => `<script>${js.replace(/<\/script/gi, "<\\/scrip
 export function buildSimHtml(script: string, a: SimAssets): string {
   const safe = script.replace(/<\/script/gi, "<\\/script");
   const css = [a.fontsCss, a.katexCss, a.leafletCss].filter(Boolean).join("\n");
+  const bdCode = detectNeeds(script).bd ? HARNESS_BD.replace("__BD_DATA__", JSON.stringify(BD_GEO)) : "";
   const libs = [a.katexJs, a.matterJs, a.leafletJs].filter(Boolean).map((j) => inlineJs(j as string)).join("");
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${CSS}\n${css}</style></head><body>${MARKUP}${libs}<script>${HARNESS}
+  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>${CSS}\n${css}</style></head><body>${MARKUP}${libs}<script>${HARNESS}${bdCode}
 try{(function(){${safe}\n})()}catch(e){_err(e)}
 requestAnimationFrame(_tick);
 </script></body></html>`;

@@ -25,14 +25,18 @@ CREATE TABLE IF NOT EXISTS chunks (
 CREATE INDEX IF NOT EXISTS chunks_embedding_idx ON chunks USING hnsw (embedding vector_cosine_ops);
 CREATE TABLE IF NOT EXISTS simulations (
   id serial PRIMARY KEY,
-  chunk_id int NOT NULL UNIQUE REFERENCES chunks(id) ON DELETE CASCADE,
+  chunk_id int NOT NULL REFERENCES chunks(id) ON DELETE CASCADE,  -- several simulations per section, one per topic
   title text NOT NULL,
   openui_code text NOT NULL,
-  embedding vector({DIM}) NOT NULL,
+  embedding vector({DIM}) NOT NULL,        -- the section's vector
+  query text,                              -- the search this simulation was made for
+  topic_embedding vector({DIM}),           -- that search's vector (used to find the right stored simulation)
   model text,
   created_at timestamptz NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS simulations_embedding_idx ON simulations USING hnsw (embedding vector_cosine_ops);
+CREATE INDEX IF NOT EXISTS simulations_chunk_idx ON simulations (chunk_id);
+CREATE INDEX IF NOT EXISTS simulations_topic_idx ON simulations USING hnsw (topic_embedding vector_cosine_ops);
 """
 
 

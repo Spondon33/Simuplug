@@ -89,13 +89,30 @@ export const ResultView: React.FC<{ query: string; book?: string | null; onPickR
         )}
       </AnimatePresence>
 
+      {!error &&
+        (best ? (
+          <SimulationCard key={`${query}-${best.chunkId}`} match={best} query={query} />
+        ) : (
+          <m.div
+            key={`skeleton-${query}`}
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease }}
+            className="glass rounded-[28px] p-6"
+          >
+            <div className="shimmer h-5 w-40 mb-4" />
+            <div className="shimmer h-6 w-2/3 mb-6" />
+            <div className="shimmer h-72 w-full" />
+          </m.div>
+        ))}
+
       {!error && (
         <m.section
           key={query}
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, ease }}
-          className="glass rounded-3xl p-6 mb-6"
+          className="glass rounded-3xl p-6 mt-6"
         >
           <div className="flex items-center gap-2 text-xs font-semibold mb-3" style={{ color: "var(--blue-deep)" }}>
             <BookOpen className="w-4 h-4 shrink-0" />
@@ -120,8 +137,6 @@ export const ResultView: React.FC<{ query: string; book?: string | null; onPickR
           )}
         </m.section>
       )}
-
-      {best && <SimulationCard key={`${query}-${best.chunkId}`} match={best} query={query} />}
 
       {related.length > 0 && (
         <m.section initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2, ease }} className="mt-10">

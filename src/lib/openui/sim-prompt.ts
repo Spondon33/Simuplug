@@ -30,13 +30,22 @@ ANIMATION: loop(function(t, dt){ ... }) runs every frame (t = seconds, pausable;
   restart() resets t. onDrag(function(x, y, kind){ ... }) gives pointer events on the canvas (kind: 'down','drag','move','up'); M = {x, y, down}.
 
 DRAWING (use these, not raw ctx, so every simulation shares one look):
-  clear(grid?)  line(x1,y1,x2,y2,color?,width?,dash?)  circle(x,y,r,color?,fill?)  ball(x,y,r,color)  (shaded sphere)
+  clear(grid?)  line(x1,y1,x2,y2,color?,width?,dash?)  (dash is an ARRAY like [6,6], never a string)  circle(x,y,r,color?,fill?)  ball(x,y,r,color)  (shaded sphere)
   rect(x,y,w,h,color?,fill?)  box(x,y,w,h,color,label?)  (rounded gradient block)  poly(points,color?,fill?)  ground(y,color?)
+  lens(cx,cy,halfHeight,'convex'|'concave',color?)  (correct lens shape: convex = thick middle, concave = thin middle with thick edges. ALWAYS use this for lenses, never draw them by hand)
   text(str,x,y,color?,size?,align?,weight?)  label(str,x,y,color?)  (pill annotation)  wrapText(str,x,y,maxWidth,lineHeight,color?,size?)
   arrow(x1,y1,x2,y2,color?,label?)  spring(x1,y1,x2,y2,coils?,color?)
   axes(x0,x1,y0,y1,xLabel,yLabel,box?)  plot(fn,x0,x1,y0,y1,color?,box?)   (draw axes first, then plot lines on it)
   chart({type:'line'|'bar', labels:[..], series:[{name,values,color?}], title?, yLabel?})   (for data, populations, results)
   timeline([{at:1757,label:'..',detail:'..'}, ...], currentValue)   (history/civics/geography sequences; drive currentValue from a slider)
+  BANGLADESH MAPS (real border + data, always use these for any map of Bangladesh):
+    var pj = bdMap([x0,y0,x1,y1])  fits the country into that box and returns pj(lat,lng) -> [x,y] (use it to place anything by real latitude/longitude)
+    bdOutline(pj, fillColor?, strokeColor?)  draws the real outline (draw it FIRST)   bdPoint(pj,lat,lng) -> [x,y]
+    bdRegion(pj, name, color, alpha?)  paints a land region clipped to the border. Names: 'cht' (Chittagong hill tracts and hills), 'sylhetHills', 'sylhetNorth', 'barind' (Barind tract),
+       'madhupur' (Madhupur tract), 'lalmai' (Lalmai hills), 'haor' (north-east haor basin), 'sundarbans', 'delta' (southern delta and tidal plain). The rest of the country is the recent flood plain.
+    bdRiver(pj, name, color?, width?)  names: Padma, Jamuna, Meghna, Surma, Teesta, Karnaphuli, Gorai-Madhumati;  bdRivers(pj, color?, width?) draws all of them
+    bdCity(pj, name, color?)  draws a labelled dot; names: Dhaka Chattogram Khulna Rajshahi Sylhet Barishal Rangpur Mymensingh Cox's Bazar Dinajpur Bogura Cumilla Jashore Tangail Rangamati Bandarban Khagrachhari Mongla Patuakhali Kuakata
+    NEVER draw the outline of Bangladesh (or any real country/region) by hand with poly() or invented coordinates: it will not look like the real shape.
   mapView(lat, lng, zoom)  returns a Leaflet map L (use L.marker([lat,lng]).addTo(map).bindPopup('..'), L.polyline, L.circle). Use ONLY for real places. Do NOT use L.marker (icons are unavailable): use L.circleMarker([lat,lng],{radius:9,color:'#2563eb',fillOpacity:.8}).addTo(map).bindTooltip('name',{permanent:true}) or L.divIcon.
   helpers: lerp, clamp, map, ease, rand, fmt(n,decimals), tint(color,alpha), PI, ctx (raw canvas), W, H.
   PALETTE C: C.ink C.mute C.blue C.sky C.teal C.green C.amber C.orange C.rose C.pink C.violet C.slate. Prefer blues/teals; use warm colors for emphasis.
@@ -48,7 +57,7 @@ PHYSICS ENGINE (only for collisions, friction, inclined planes, stacking): Matte
 - Chemistry: particle animation (arrays of balls) for gases, diffusion, states of matter, reaction rate; draw atoms/bonds/molecules and the periodic-table style cards with box()/ball()/label().
 - Biology: animated diagrams of the structure/process (cell, heart, digestion, photosynthesis, genetics): draw organs/organelles with rounded shapes and gradients, animate flow with moving dots along arrows, label parts with label(), and use chart() for population/genetics data. A Punnett square is a grid of box() cells.
 - Maths: plot functions and geometry with axes()/plot()/poly(), animate constructions step by step, always show the formula().
-- Geography, history, civics, economics, ICT, English, religion, arts, agriculture, commerce: pick the clearest model: timeline() driven by a slider, mapView() for places, chart() for data and supply/demand curves, flow diagrams made of box() + arrow(), sortable/clickable categories with choice(). Never make a bland table; make it explorable.
+- Geography, history, civics, economics, ICT, English, religion, arts, agriculture, commerce: pick the clearest model: timeline() driven by a slider, mapView() for real places outside Bangladesh (and the bd* helpers for Bangladesh), chart() for data and supply/demand curves, flow diagrams made of box() + arrow(), sortable/clickable categories with choice(). Never make a bland table; make it explorable.
 - If figure descriptions are given, recreate those figures (same objects, labels, relationships) and make them interactive.
 - Bangla text is fine: the page already loads a Bangla font.
 
@@ -95,7 +104,7 @@ export function buildSimUserPrompt(c: SimContext, repair?: { code: string; error
         .map((f, i) => `Figure ${i + 1} (${f.type || "figure"}): ${f.description || ""}${f.ocr ? `\nText in figure: ${f.ocr}` : ""}`)
         .join("\n\n")
     : "NONE: no figure in this section. Design the simulation from the text, plus well-established outside knowledge if needed.";
-  let p = `Student search: "${c.query}"\n\nSource: ${c.book}, chapter "${c.chapter}", section ${c.section} — ${c.title}\n\n### Section text\n${c.content.slice(0, 6000)}\n\n### Figure descriptions\n${figs}\n\nWrite the OpenUI Lang page with exactly one SimCanvas now.`;
+  let p = `Student search: "${c.query}"\n\nIMPORTANT: build the simulation for exactly this search. The section below may describe several experiments, models, laws or topics: choose ONLY the one that matches the search and ignore the others. Never default to the first or most prominent one in the section, and do not combine several into one.\n\nSource: ${c.book}, chapter "${c.chapter}", section ${c.section} — ${c.title}\n\n### Section text\n${c.content.slice(0, 6000)}\n\n### Figure descriptions\n${figs}\n\nWrite the OpenUI Lang page with exactly one SimCanvas now.`;
   if (repair) {
     p += `\n\nYour previous answer had problems:\n- ${repair.errors.join("\n- ")}\n\nPrevious answer:\n${repair.code}\n\nReturn the corrected full OpenUI Lang page only.`;
   }
